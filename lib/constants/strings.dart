@@ -1,0 +1,15 @@
+const String ID = 'id';
+const String UID = 'uid';
+const String NAME = 'name';
+const String USERNAME = 'username';
+const String IMG_URL = 'imgUrl';
+const String EMAIL = 'email';
+const String CREATED_AT = 'createdAt';
+const String USER = 'user';
+const String USERS = 'users';
+const String FRIEND = 'friend';
+const String FRIENDS = 'friends';
+const String PARTY = 'party';
+const String PARTIES = 'parties';
+const String MESSAGE = 'message';
+const String MESSEGES = 'messages';
