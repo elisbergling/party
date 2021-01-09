@@ -7,7 +7,9 @@ import 'auth_provider.dart';
 final friendProvider = ChangeNotifierProvider<FriendService>((ref) {
   final auth = ref?.watch(authStateChangesProvider);
   if (auth?.data?.value?.uid != null) {
-    return FriendService(uid: auth?.data?.value?.uid);
+    return FriendService(
+      uid: auth?.data?.value?.uid,
+    );
   }
   return null;
 });

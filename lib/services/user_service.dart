@@ -46,14 +46,27 @@ class UserService extends AbstractUserService {
     }
   }
 
-  Future<Friend> userFuture() {
+  Stream<List<Friend>> requestStream() {
+    try {
+      return userCollection
+          .where(REQUEST_UIDS, arrayContains: uid)
+          .snapshots()
+          .map((event) =>
+              event.docs.map((e) => Friend.fromJson(e.data())).toList());
+    } catch (e) {
+      print(e.message);
+      _error = e.message;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<Friend> getUserFuture() async {
     try {
       _isLoading = true;
       notifyListeners();
-      return userCollection
-          .doc(uid)
-          .get()
-          ?.then((map) => Friend?.fromJson(map?.data()));
+      final userJson = await userCollection.doc(uid).get();
+      return Friend.fromJson(userJson.data());
     } catch (e) {
       print(e.message);
       _error = e.message;
@@ -100,23 +113,6 @@ class UserService extends AbstractUserService {
       notifyListeners();
     }
   }
-
-  Future<void> updateFriendsUids({
-    List<String> friendsUids,
-  }) async {
-    try {
-      _isLoading = true;
-      notifyListeners();
-      await userCollection.doc(uid)?.update({'friendsUids': friendsUids});
-    } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
 }
 
 class UserServiceCreateUser extends AbstractUserService {
@@ -137,6 +133,7 @@ class UserServiceCreateUser extends AbstractUserService {
         uid: uid,
         imgUrl: imgUrl ?? '',
         friendUids: [],
+        requestUids: [],
       );
       await userCollection.doc(uid)?.set(user?.toJson());
     } catch (e) {

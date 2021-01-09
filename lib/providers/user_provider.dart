@@ -25,3 +25,10 @@ final userUsersStreamProvider = StreamProvider.autoDispose<List<Friend>>((ref) {
   ref.maintainState = true;
   return user?.usersStream() ?? const Stream.empty();
 });
+
+final userRequestStreamProvider =
+    StreamProvider.autoDispose<List<Friend>>((ref) {
+  final user = ref?.watch(userProvider);
+  ref.maintainState = true;
+  return user?.requestStream() ?? const Stream.empty();
+});

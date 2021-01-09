@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/all.dart';
-import 'package:party/models/friend.dart';
+import 'package:party/models/party.dart';
+import 'package:party/providers/party_provider.dart';
 import 'package:party/providers/state_provider.dart';
+import 'package:party/widgets/cached_image.dart';
 import 'package:party/widgets/friend_tile.dart';
+import 'package:party/widgets/temp/my_error_widget.dart';
+import 'package:party/widgets/temp/my_loading_widget.dart';
 
 class MapScreen extends HookWidget {
   const MapScreen({Key key}) : super(key: key);
@@ -12,7 +16,11 @@ class MapScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final party = useProvider(partyProvider);
     final partyData = useProvider(partyDataProvider);
+    final partyPartiesStream = useProvider(partyPartiesStreamProvider);
+    final partyComingStream =
+        useProvider(partyComingStreamProvider(partyData.state));
     return Row(
       children: [
         Expanded(
@@ -24,74 +32,78 @@ class MapScreen extends HookWidget {
                 ),
                 Container(
                   height: 120,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: 20,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, i) => Container(
-                      width: 170,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Theme.of(context).primaryColorDark,
-                      ),
-                      margin: const EdgeInsets.all(20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              const SizedBox(width: 15),
-                              Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.yellow,
+                  child: partyPartiesStream.when(
+                    data: (parties) => ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: parties.length,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) => Container(
+                        width: 170,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Theme.of(context).primaryColorDark,
+                        ),
+                        margin: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                const SizedBox(width: 15),
+                                CachedImage(
+                                  parties[index].imgUrl,
+                                  name: parties[index].name,
+                                  height: 50,
+                                  width: 50,
                                 ),
-                              ),
-                              const SizedBox(width: 10),
-                              Container(
-                                width: 50,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(
-                                      'name',
-                                      textAlign: TextAlign.center,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                        color:
-                                            Theme.of(context).primaryColorLight,
+                                const SizedBox(width: 10),
+                                Container(
+                                  width: 50,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        parties[index].name,
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                          color: Theme.of(context)
+                                              .primaryColorLight,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      'price',
-                                      textAlign: TextAlign.center,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 9,
-                                        color: Theme.of(context).accentColor,
+                                      Text(
+                                        parties[index].price.toString(),
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 9,
+                                          color: Theme.of(context).accentColor,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              IconButton(
+                                IconButton(
                                   icon: Icon(Icons.more_horiz),
                                   iconSize: 20,
                                   onPressed: () => context
                                       .read(partyDataProvider)
-                                      .state = 'name' + i.toString())
-                            ],
-                          ),
-                        ],
+                                      .state = parties[index],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+                    loading: () => MyLoadingWidget(),
+                    error: (e, s) => MyErrorWidget(e: e, s: s),
                   ),
                 ),
               ],
@@ -114,29 +126,30 @@ class MapScreen extends HookWidget {
                   ),
                   body: Column(
                     children: [
-                      Container(
-                        width: 250,
+                      const SizedBox(height: 50),
+                      CachedImage(
+                        partyData.state.imgUrl,
+                        name: partyData.state.name,
                         height: 250,
-                        margin: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.yellow,
-                        ),
+                        width: 250,
                       ),
                       Padding(
                         padding: const EdgeInsets.all(20),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(partyData.state),
-                            Text('  price'),
+                            Text(
+                              partyData.state.name +
+                                  '  ' +
+                                  partyData.state.price.toString() +
+                                  ' kr',
+                            ),
                           ],
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(20),
-                        child: Text(
-                            'about party, dfbfbgsdfgbsdfjghsdfjghsdfjgsdfjkgsdfghdsifgsduigsdfgdsgsdfgsdfugsdfugysduygsdfugsdfugsdfugysdfgsuydfghsuyfgsdufgsdug'),
+                        child: Text(partyData.state.about),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -151,20 +164,39 @@ class MapScreen extends HookWidget {
                       Text('coming:'),
                       Container(
                         height: 160,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 20,
-                          itemBuilder: (context, index) => FriendTile(
-                            friend: Friend(
-                              name: 'baba',
-                              username: 'babis',
+                        child: partyComingStream.when(
+                          data: (coming) => ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: coming.length,
+                            itemBuilder: (context, index) => FriendTile(
+                              friend: coming[index],
                             ),
                           ),
+                          loading: () => MyLoadingWidget(),
+                          error: (e, s) {
+                            print('error: ' + e);
+                            print('stackTrace: ' + s.toString());
+                            return MyErrorWidget(e: e, s: s);
+                          },
                         ),
                       ),
+                      !party.isLoading
+                          ? RaisedButton(
+                              onPressed: () async => await context
+                                  .read(partyProvider)
+                                  .joinParty(id: partyData.state.id),
+                              child: Text('join party'),
+                            )
+                          : MyLoadingWidget(),
+                      const SizedBox(height: 50),
                       RaisedButton(
-                        onPressed: () {},
-                        child: Text('join party'),
+                        onPressed: () async {
+                          Party fetchedParty = await context
+                              .read(partyProvider)
+                              .fetchParty(id: partyData.state.id);
+                          context.read(partyDataProvider).state = fetchedParty;
+                        },
+                        child: Text('refresh'),
                       )
                     ],
                   ),

@@ -1,23 +1,32 @@
-//import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-//part 'party.g.dart';
+part 'party.g.dart';
 
-//@JsonSerializable()
+@JsonSerializable()
 class Party {
-  Party({
-    this.uid,
-    this.name,
-    this.about,
-    this.imgUrl,
-    this.coming,
-  });
-
-  String uid;
+  String id;
   String name;
   String about;
+  int price;
   String imgUrl;
-  List<String> coming;
+  Timestamp time;
+  String hostName;
+  String hostUid;
+  List<String> comingUids;
 
-  //factory Party.fromJson(Map<String, dynamic> json) => _$PartyFromJson(json);
-  //Map<String, dynamic> toJson() => _$PartyToJson(this);
+  Party({
+    this.id,
+    this.name,
+    this.about,
+    this.price,
+    this.imgUrl,
+    this.time,
+    this.hostName,
+    this.hostUid,
+    this.comingUids,
+  });
+
+  factory Party.fromJson(Map<String, dynamic> json) => _$PartyFromJson(json);
+  Map<String, dynamic> toJson() => _$PartyToJson(this);
 }

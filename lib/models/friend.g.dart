@@ -14,6 +14,8 @@ Friend _$FriendFromJson(Map<String, dynamic> json) {
     email: json['email'] as String,
     imgUrl: json['imgUrl'] as String,
     friendUids: (json['friendUids'] as List)?.map((e) => e as String)?.toList(),
+    requestUids:
+        (json['requestUids'] as List)?.map((e) => e as String)?.toList(),
   );
 }
 
@@ -24,4 +26,5 @@ Map<String, dynamic> _$FriendToJson(Friend instance) => <String, dynamic>{
       'email': instance.email,
       'imgUrl': instance.imgUrl,
       'friendUids': instance.friendUids,
+      'requestUids': instance.requestUids,
     };

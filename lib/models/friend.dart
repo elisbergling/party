@@ -11,6 +11,7 @@ class Friend {
     this.email,
     this.imgUrl,
     this.friendUids,
+    this.requestUids,
   });
 
   String uid;
@@ -19,6 +20,7 @@ class Friend {
   String email;
   String imgUrl;
   List<String> friendUids;
+  List<String> requestUids;
 
   factory Friend.fromJson(Map<String, dynamic> json) => _$FriendFromJson(json);
   Map<String, dynamic> toJson() => _$FriendToJson(this);

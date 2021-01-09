@@ -4,7 +4,6 @@ import 'package:hooks_riverpod/all.dart';
 import 'package:party/providers/friend_provider.dart';
 import 'package:party/providers/provider.dart';
 import 'package:party/providers/state_provider.dart';
-import 'package:party/providers/user_provider.dart';
 import 'package:party/widgets/list_item.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';

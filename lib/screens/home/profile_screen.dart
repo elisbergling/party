@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/all.dart';
 import 'package:party/providers/friend_provider.dart';
+import 'package:party/providers/party_provider.dart';
 import 'package:party/providers/user_provider.dart';
 import 'package:party/widgets/cached_image.dart';
 import 'package:party/widgets/custom_text_field.dart';
@@ -21,6 +22,7 @@ class ProfileScreen extends HookWidget {
     final controllerName = useTextEditingController();
     final controllerUsername = useTextEditingController();
     final friendFriendsStream = useProvider(friendFriendsStreamProvider);
+    final partyMyPartiesStream = useProvider(partyMyPartiesStreamProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
@@ -99,7 +101,85 @@ class ProfileScreen extends HookWidget {
                     loading: () => MyLoadingWidget(),
                     error: (e, s) => MyErrorWidget(e: e, s: s),
                   ),
-                )
+                ),
+                Text('Your Parties'),
+                Container(
+                  height: 160,
+                  child: partyMyPartiesStream.when(
+                    data: (parties) => ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: parties.length,
+                      itemBuilder: (context, index) => Container(
+                        padding: const EdgeInsets.all(20),
+                        margin: const EdgeInsets.all(20),
+                        width: 206,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Theme.of(context).primaryColorDark,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CachedImage(
+                              parties[index].imgUrl,
+                              height: 80,
+                              width: 80,
+                              name: parties[index].name,
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              width: 80,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    parties[index].name,
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      color:
+                                          Theme.of(context).primaryColorLight,
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 40,
+                                    width: 80,
+                                    child: Text(
+                                      parties[index].about,
+                                      textAlign: TextAlign.left,
+                                      overflow: TextOverflow.clip,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 9,
+                                        color: Theme.of(context).accentColor,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(child: Container()),
+                                  Text(
+                                    parties[index].price.toString() + ' kr',
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    loading: () => MyLoadingWidget(),
+                    error: (e, s) => MyErrorWidget(e: e, s: s),
+                  ),
+                ),
               ],
             ),
           ),
