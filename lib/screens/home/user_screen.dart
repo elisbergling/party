@@ -4,6 +4,8 @@ import 'package:party/screens/home/add_friend_screen.dart';
 import 'package:party/screens/home/add_party_screen.dart';
 import 'package:party/screens/home/profile_screen.dart';
 
+import 'add_group_screen.dart';
+
 class UserScreen extends StatelessWidget {
   const UserScreen({Key key}) : super(key: key);
 
@@ -28,6 +30,7 @@ class UserScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(50),
                   child: Column(
                     children: [
+                      /*
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         mainAxisSize: MainAxisSize.max,
@@ -36,7 +39,7 @@ class UserScreen extends StatelessWidget {
                           buildTimeContainer('Week', context),
                           buildTimeContainer('Day', context),
                         ],
-                      ),
+                      ),*/
                       Container(
                         margin: const EdgeInsets.only(top: 20),
                         height: 400,
@@ -54,6 +57,10 @@ class UserScreen extends StatelessWidget {
           Container(
             width: 400,
             child: AddFriendScreen(),
+          ),
+          Container(
+            width: 400,
+            child: AddGroupScreen(),
           ),
           Container(
             width: 400,

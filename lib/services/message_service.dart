@@ -1,14 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:party/constants/strings.dart';
+import 'package:party/models/friend.dart';
+import 'package:party/models/group.dart';
 import 'package:party/models/message.dart';
+import 'package:party/models/party.dart';
 import 'package:uuid/uuid.dart';
 
 class MessageService with ChangeNotifier {
   MessageService({
     @required this.uid,
+    @required this.messageData,
   }) : assert(uid != null, 'Cannot create FriendService with null uid');
   final String uid;
+  final Type messageData;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -22,13 +27,24 @@ class MessageService with ChangeNotifier {
     String uidTo,
   ) {
     String chatRoomId;
-
-    if (uid.hashCode < uidTo.hashCode) {
-      chatRoomId = uid + uidTo;
-    } else if (uidTo.hashCode < uid.hashCode) {
-      chatRoomId = uidTo + uid;
-    } else if (uidTo.hashCode == uid.hashCode) {
-      chatRoomId = uidTo.hashCode.toString() + uid.hashCode.toString();
+    switch (messageData) {
+      case Friend:
+        if (uid.hashCode < uidTo.hashCode) {
+          chatRoomId = uid + uidTo;
+        } else if (uidTo.hashCode < uid.hashCode) {
+          chatRoomId = uidTo + uid;
+        } else if (uidTo == uid) {
+          chatRoomId = uid;
+        } else if (uidTo.hashCode == uid.hashCode) {
+          chatRoomId = uidTo.hashCode.toString() + uid.hashCode.toString();
+        }
+        break;
+      case Group:
+        chatRoomId = uidTo;
+        break;
+      case Party:
+        chatRoomId = uidTo;
+        break;
     }
     return chatRoomId;
   }

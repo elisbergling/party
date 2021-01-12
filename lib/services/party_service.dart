@@ -14,6 +14,7 @@ class PartyService with ChangeNotifier {
   bool get isLoading => _isLoading;
   String _error = '';
   String get error => _error;
+  set error(error) => _error = error;
 
   final CollectionReference partyCollection =
       FirebaseFirestore.instance.collection(PARTIES);
@@ -21,19 +22,16 @@ class PartyService with ChangeNotifier {
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection(USERS);
 
-  Stream<List<Party>> partiesStream() async* {
+  Stream<List<Party>> partiesStream() {
     try {
-      DocumentSnapshot documentSnapshot = await userCollection.doc(uid).get();
-      Friend user = Friend.fromJson(documentSnapshot.data());
-      yield* partyCollection
-          .where(HOST_UID,
-              whereIn: user.friendUids.isNotEmpty ? user.friendUids : [''])
+      return partyCollection
+          .where(INVITED_UIDS, arrayContains: uid)
           .snapshots()
           .map((event) =>
               event.docs.map((e) => Party.fromJson(e.data())).toList());
     } catch (e) {
       print(e.toString());
-      yield null;
+      return null;
     }
   }
 
@@ -41,6 +39,19 @@ class PartyService with ChangeNotifier {
     try {
       return partyCollection.where(HOST_UID, isEqualTo: uid).snapshots().map(
           (event) => event.docs.map((e) => Party.fromJson(e.data())).toList());
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
+
+  Stream<List<Party>> upcomingPartiesStream() {
+    try {
+      return partyCollection
+          .where(COMING_UIDS, arrayContains: uid)
+          .snapshots()
+          .map((event) =>
+              event.docs.map((e) => Party.fromJson(e.data())).toList());
     } catch (e) {
       print(e.toString());
       return null;
@@ -82,6 +93,7 @@ class PartyService with ChangeNotifier {
     int price,
     String imgUrl,
     Timestamp time,
+    List<String> invitedUids,
   }) async {
     try {
       _isLoading = true;
@@ -94,7 +106,7 @@ class PartyService with ChangeNotifier {
           name.trim() == '' ||
           about.trim() == '' ||
           price.toString().trim() == '') {
-        return;
+        _error = 'No Field can be empyt';
       } else {
         Uuid uuid = Uuid();
         DocumentSnapshot documentSnapshot = await userCollection.doc(uid).get();
@@ -106,6 +118,7 @@ class PartyService with ChangeNotifier {
           name: name,
           price: price,
           comingUids: [],
+          invitedUids: invitedUids ?? [],
           hostUid: uid,
           hostName: Friend.fromJson(documentSnapshot.data()).name,
         );
@@ -136,12 +149,14 @@ class PartyService with ChangeNotifier {
     }
   }
 
-  Future<void> joinOrRegretParty({Party party}) async {
+  Future<void> joinOrUnjoinParty({Party party}) async {
     try {
       _isLoading = true;
       notifyListeners();
       if (party.comingUids.contains(uid)) {
-        await regretParty(id: party.id);
+        //await unjoinParty(id: party.id);
+        _error = 'You Have alredy joined this party';
+        notifyListeners();
       } else {
         await joinParty(id: party.id);
       }
@@ -172,7 +187,7 @@ class PartyService with ChangeNotifier {
     }
   }
 
-  Future<void> regretParty({String id}) async {
+  Future<void> unjoinParty({String id}) async {
     try {
       _isLoading = true;
       notifyListeners();

@@ -27,6 +27,13 @@ final partyMyPartiesStreamProvider =
   return party?.myPartiesStream() ?? const Stream.empty();
 });
 
+final partyUpcomingPartiesStreamProvider =
+    StreamProvider.autoDispose<List<Party>>((ref) {
+  final party = ref?.watch(partyProvider);
+  ref.maintainState = true;
+  return party?.upcomingPartiesStream() ?? const Stream.empty();
+});
+
 final partyComingStreamProvider =
     StreamProvider.autoDispose.family<List<Friend>, Party>((ref, party) {
   final partyService = ref?.watch(partyProvider);

@@ -14,6 +14,7 @@ class Party {
   String hostName;
   String hostUid;
   List<String> comingUids;
+  List<String> invitedUids;
 
   Party({
     this.id,
@@ -25,6 +26,7 @@ class Party {
     this.hostName,
     this.hostUid,
     this.comingUids,
+    this.invitedUids,
   });
 
   factory Party.fromJson(Map<String, dynamic> json) => _$PartyFromJson(json);

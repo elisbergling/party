@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:party/models/friend.dart';
+import 'package:party/models/group.dart';
+import 'package:party/models/party.dart';
 import 'package:party/providers/auth_provider.dart';
 import 'package:party/providers/message_provider.dart';
 import 'package:party/providers/state_provider.dart';
@@ -17,8 +20,20 @@ class FriendScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final messageData = useProvider(messageDataProvider);
+    String uid;
+    switch (messageData.state.runtimeType) {
+      case Friend:
+        uid = messageData.state.uid;
+        break;
+      case Group:
+        uid = messageData.state.id;
+        break;
+      case Party:
+        uid = messageData.state.id;
+        break;
+    }
     final messageMessagesStream =
-        useProvider(messageMessagesStreamProvider(messageData.state.uid));
+        useProvider(messageMessagesStreamProvider(uid));
     final controllerMessage = useTextEditingController();
     final authStateChanges = useProvider(authStateChangesProvider);
     return Scaffold(
@@ -40,7 +55,7 @@ class FriendScreen extends HookWidget {
           Expanded(
             child: Container(
               child: messageMessagesStream.when(
-                data: (messages) => messageData.state.uid != null
+                data: (messages) => uid != null
                     ? ListView.builder(
                         reverse: true,
                         itemCount: messages.length,
@@ -96,9 +111,9 @@ class FriendScreen extends HookWidget {
                 ),
                 GestureDetector(
                   onTap: () async {
-                    if (messageData.state.uid != null) {
+                    if (uid != null) {
                       await context.read(messageProvider).addMessage(
-                            uidTo: messageData.state.uid,
+                            uidTo: uid,
                             message: controllerMessage.text,
                           );
                       controllerMessage.text = '';
@@ -110,7 +125,7 @@ class FriendScreen extends HookWidget {
                     margin: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: messageData.state.uid != null
+                      color: uid != null
                           ? Theme.of(context).primaryColor
                           : Colors.grey,
                     ),

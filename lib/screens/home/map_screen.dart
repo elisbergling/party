@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/all.dart';
+import 'package:party/constants/global.dart';
 import 'package:party/models/party.dart';
 import 'package:party/providers/party_provider.dart';
 import 'package:party/providers/state_provider.dart';
@@ -182,22 +183,23 @@ class MapScreen extends HookWidget {
                       ),
                       !party.isLoading
                           ? RaisedButton(
-                              onPressed: () async => await context
-                                  .read(partyProvider)
-                                  .joinParty(id: partyData.state.id),
+                              onPressed: () async {
+                                await context
+                                    .read(partyProvider)
+                                    .joinOrUnjoinParty(party: partyData.state);
+                                showActionDialog(
+                                  ctx: context,
+                                  service: party,
+                                  message: party.error,
+                                  title: party.error == ''
+                                      ? 'Joined Party Sucessfully'
+                                      : 'Something went wrong',
+                                );
+                                context.read(partyDataProvider).state = null;
+                              },
                               child: Text('join party'),
                             )
                           : MyLoadingWidget(),
-                      const SizedBox(height: 50),
-                      RaisedButton(
-                        onPressed: () async {
-                          Party fetchedParty = await context
-                              .read(partyProvider)
-                              .fetchParty(id: partyData.state.id);
-                          context.read(partyDataProvider).state = fetchedParty;
-                        },
-                        child: Text('refresh'),
-                      )
                     ],
                   ),
                 ),

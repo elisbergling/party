@@ -8,16 +8,18 @@ part of 'party.dart';
 
 Party _$PartyFromJson(Map<String, dynamic> json) {
   return Party(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    about: json['about'] as String,
-    price: json['price'] as int,
-    imgUrl: json['imgUrl'] as String,
-    time: json['time'] as Timestamp,
-    hostName: json['hostName'] as String,
-    hostUid: json['hostUid'] as String,
-    comingUids: (json['comingUids'] as List)?.map((e) => e as String)?.toList(),
-  );
+      id: json['id'] as String,
+      name: json['name'] as String,
+      about: json['about'] as String,
+      price: json['price'] as int,
+      imgUrl: json['imgUrl'] as String,
+      time: json['time'] as Timestamp,
+      hostName: json['hostName'] as String,
+      hostUid: json['hostUid'] as String,
+      comingUids:
+          (json['comingUids'] as List)?.map((e) => e as String)?.toList(),
+      invitedUids:
+          (json['invitedUids'] as List)?.map((e) => e as String)?.toList());
 }
 
 Map<String, dynamic> _$PartyToJson(Party instance) => <String, dynamic>{
@@ -30,4 +32,5 @@ Map<String, dynamic> _$PartyToJson(Party instance) => <String, dynamic>{
       'hostName': instance.hostName,
       'hostUid': instance.hostUid,
       'comingUids': instance.comingUids,
+      'invitedUids': instance.invitedUids,
     };
