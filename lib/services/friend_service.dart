@@ -48,6 +48,26 @@ class FriendService with ChangeNotifier {
     }
   }
 
+  Future<List<Friend>> friendsFuture() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      return await userCollection
+          .where(FRIEND_UIDS, arrayContains: uid)
+          .get()
+          .then((event) =>
+              event.docs.map((e) => Friend.fromJson(e.data())).toList());
+    } catch (e) {
+      print(e.message);
+      _error = e.message;
+      notifyListeners();
+      return null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> deleteFriend({String uidTo}) async {
     try {
       _isLoading = true;
@@ -148,7 +168,7 @@ class FriendService with ChangeNotifier {
     }
   }
 
-  Stream<Friend> getFriendStream() {
+  Stream<Friend> getMyStream() {
     try {
       _isLoading = true;
       notifyListeners();

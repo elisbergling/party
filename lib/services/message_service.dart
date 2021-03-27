@@ -65,19 +65,38 @@ class MessageService with ChangeNotifier {
     }
   }
 
-  Future<Message> fetchLastMessageAsFuture({
-    String uidTo,
-  }) {
+  Stream<Message> lastMessageStream({String uidTo}) {
     try {
       String chatRoomId = chatRoomIdGenerator(uidTo);
       return messageCollection
           .doc(chatRoomId)
           .collection(MESSEGES)
           .orderBy(CREATED_AT, descending: true)
+          .limit(1)
           .snapshots()
-          .map((event) =>
-              event.docs.map((e) => Message.fromJson(e.data())).toList()[0])
-          .first;
+          .map((event) => event.docs.isNotEmpty
+              ? Message.fromJson(event.docs.single.data())
+              : Message(
+                  message: "Shit yourself",
+                  createdAt: Timestamp.fromMicrosecondsSinceEpoch(0),
+                ));
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
+
+  Future<Message> lastMessageFuture({String uidTo}) async {
+    try {
+      String chatRoomId = chatRoomIdGenerator(uidTo);
+      final doc = await messageCollection
+          .doc(chatRoomId)
+          .collection(MESSEGES)
+          .orderBy(CREATED_AT, descending: true)
+          .limit(1)
+          .get();
+
+      return doc.docs.map((e) => Message.fromJson(e.data())).single;
     } catch (e) {
       print(e.toString());
       return null;

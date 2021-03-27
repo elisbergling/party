@@ -13,6 +13,8 @@ import 'package:party/widgets/temp/my_loading_widget.dart';
 class AddGroupScreen extends HookWidget {
   const AddGroupScreen({Key key}) : super(key: key);
 
+  static const routeName = '/add_group';
+
   String validator(value) {
     if (value.isEmpty) {
       return 'Well, you have to enter a name';

@@ -13,7 +13,7 @@ class AddFriendScreen extends HookWidget {
   const AddFriendScreen({
     Key key,
   }) : super(key: key);
-
+  static const routeName = '/add_friend';
   @override
   Widget build(BuildContext context) {
     final userUsersStream = useProvider(userUsersStreamProvider);
@@ -31,16 +31,26 @@ class AddFriendScreen extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               RaisedButton(
-                onPressed: () => context.read(isRequestProvider).state = false,
+                onPressed: () {
+                  context.read(isRequestProvider).state = false;
+                  print('all');
+                },
                 child: Text('All'),
               ),
               RaisedButton(
-                onPressed: () => context.read(isRequestProvider).state = true,
+                onPressed: () {
+                  context.read(isRequestProvider).state = true;
+                  print('requset');
+                },
                 child: Text('Requests'),
               ),
             ],
           ),
-          CustomTextField(text: 'search'),
+          CustomTextField(
+            text: 'search',
+            onChanged: (String val) =>
+                context.read(friendsSearchProvider).state = val,
+          ),
           Expanded(
             child: isRequest.state
                 ? userRequestStream.when(
@@ -68,7 +78,6 @@ class AddFriendScreen extends HookWidget {
         crossAxisSpacing: 14,
         mainAxisSpacing: 14,
       ),
-      cacheExtent: 1000,
       itemCount: users.length,
       itemBuilder: (BuildContext context, int index) {
         return AddFriendTile(

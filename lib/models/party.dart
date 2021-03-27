@@ -15,6 +15,11 @@ class Party {
   String hostUid;
   List<String> comingUids;
   List<String> invitedUids;
+  double latitude;
+  double longitude;
+  String address;
+  String country;
+  String postalCode;
 
   Party({
     this.id,
@@ -27,6 +32,11 @@ class Party {
     this.hostUid,
     this.comingUids,
     this.invitedUids,
+    this.latitude,
+    this.longitude,
+    this.address,
+    this.country,
+    this.postalCode,
   });
 
   factory Party.fromJson(Map<String, dynamic> json) => _$PartyFromJson(json);

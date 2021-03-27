@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:party/constants/global.dart';
 import 'package:party/models/message.dart';
 
 class MessageLayout extends StatelessWidget {
@@ -13,8 +14,7 @@ class MessageLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String> dateTime =
-        message.createdAt.toDate().toIso8601String().split('T');
+    String time = timeAGo(timestamp: message.createdAt);
     return Container(
       margin: EdgeInsets.only(
         top: 10,
@@ -73,15 +73,11 @@ class MessageLayout extends StatelessWidget {
               right: 3,
             ),
             child: Text(
-              dateTime[0] +
-                  ' ' +
-                  dateTime[1].split(':')[0] +
-                  ':' +
-                  dateTime[1].split(':')[1],
+              time,
               textAlign: isMe ? TextAlign.end : TextAlign.start,
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 8,
+                fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),
             ),

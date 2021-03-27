@@ -15,6 +15,7 @@ class GroupService with ChangeNotifier {
   String _error = '';
   String get error => _error;
   set error(error) => _error = error;
+  static List<String> groupUids = [];
 
   CollectionReference groupCollection =
       FirebaseFirestore.instance.collection(GROUPS);

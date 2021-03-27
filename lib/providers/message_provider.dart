@@ -23,3 +23,17 @@ final messageMessagesStreamProvider =
   ref.maintainState = true;
   return message?.messagesStream(uidTo: uidTo) ?? const Stream.empty();
 });
+
+final messageLastMessageStreamProvider =
+    StreamProvider.autoDispose.family<Message, String>((ref, uidTo) {
+  final message = ref?.watch(messageProvider);
+  ref.maintainState = true;
+  return message?.lastMessageStream(uidTo: uidTo) ?? const Stream.empty();
+});
+
+final messageLastMessageFutureProvider =
+    FutureProvider.autoDispose.family<Message, String>((ref, uidTo) {
+  final message = ref?.watch(messageProvider);
+  ref.maintainState = true;
+  return message?.lastMessageFuture(uidTo: uidTo) ?? const Stream.empty();
+});

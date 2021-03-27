@@ -5,11 +5,13 @@ import 'package:party/constants/enum.dart';
 import 'package:party/providers/friend_provider.dart';
 import 'package:party/providers/group_provider.dart';
 import 'package:party/providers/party_provider.dart';
-import 'package:party/providers/provider.dart';
 import 'package:party/providers/state_provider.dart';
+import 'package:party/screens/home/add_friend_screen.dart';
 import 'package:party/widgets/list_item.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
+
+import 'add_group_screen.dart';
 
 class MessagesScreen extends HookWidget {
   const MessagesScreen({
@@ -22,7 +24,6 @@ class MessagesScreen extends HookWidget {
     final groupGroupsStream = useProvider(groupGroupsStreamProvider);
     final partyUpcomingPartiesStream =
         useProvider(partyUpcomingPartiesStreamProvider);
-    final pageController = useProvider(pageControllerProvider);
     final messageType = useProvider(messageTypeProvider);
     return Scaffold(
       appBar: AppBar(
@@ -36,12 +37,14 @@ class MessagesScreen extends HookWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.person_add),
-            onPressed: () {
-              context.read(pageIndexProvider).state = 0;
-              pageController.animateToPage(0,
-                  duration: Duration(milliseconds: 800), curve: Curves.easeIn);
-            },
-          )
+            onPressed: () =>
+                Navigator.of(context).pushNamed(AddFriendScreen.routeName),
+          ),
+          IconButton(
+            icon: Icon(Icons.group_add),
+            onPressed: () =>
+                Navigator.of(context).pushNamed(AddGroupScreen.routeName),
+          ),
         ],
       ),
       body: Column(
@@ -74,20 +77,9 @@ class MessagesScreen extends HookWidget {
                 ? friendFriendsStream.when(
                     data: (friends) => ListView.builder(
                       physics: const BouncingScrollPhysics(),
-                      cacheExtent: 1000,
                       itemCount: friends.length,
-                      itemBuilder: (ctx, index) {
-                        bool isFirst;
-                        bool isLast;
-                        index == 0 ? isFirst = true : isFirst = false;
-                        index == 29 ? isLast = true : isLast = false;
-                        return ListItem(
-                          isFirst: isFirst,
-                          isLast: isLast,
-                          index: index,
-                          friend: friends[index],
-                        );
-                      },
+                      itemBuilder: (ctx, index) =>
+                          ListItem(friend: friends[index]),
                     ),
                     loading: () => MyLoadingWidget(),
                     error: (e, s) => MyErrorWidget(e: e, s: s),
@@ -96,20 +88,9 @@ class MessagesScreen extends HookWidget {
                     ? groupGroupsStream.when(
                         data: (groups) => ListView.builder(
                           physics: const BouncingScrollPhysics(),
-                          cacheExtent: 1000,
                           itemCount: groups.length,
-                          itemBuilder: (ctx, index) {
-                            bool isFirst;
-                            bool isLast;
-                            index == 0 ? isFirst = true : isFirst = false;
-                            index == 29 ? isLast = true : isLast = false;
-                            return ListItem(
-                              isFirst: isFirst,
-                              isLast: isLast,
-                              index: index,
-                              group: groups[index],
-                            );
-                          },
+                          itemBuilder: (ctx, index) =>
+                              ListItem(group: groups[index]),
                         ),
                         loading: () => MyLoadingWidget(),
                         error: (e, s) => MyErrorWidget(e: e, s: s),
@@ -117,20 +98,9 @@ class MessagesScreen extends HookWidget {
                     : partyUpcomingPartiesStream.when(
                         data: (parties) => ListView.builder(
                           physics: const BouncingScrollPhysics(),
-                          cacheExtent: 1000,
                           itemCount: parties.length,
-                          itemBuilder: (ctx, index) {
-                            bool isFirst;
-                            bool isLast;
-                            index == 0 ? isFirst = true : isFirst = false;
-                            index == 29 ? isLast = true : isLast = false;
-                            return ListItem(
-                              isFirst: isFirst,
-                              isLast: isLast,
-                              index: index,
-                              party: parties[index],
-                            );
-                          },
+                          itemBuilder: (ctx, index) =>
+                              ListItem(party: parties[index]),
                         ),
                         loading: () => MyLoadingWidget(),
                         error: (e, s) => MyErrorWidget(e: e, s: s),

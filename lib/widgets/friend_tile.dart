@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/models/friend.dart';
-import 'package:party/providers/provider.dart';
 import 'package:party/providers/state_provider.dart';
+import 'package:party/screens/home/friend_screen.dart';
 import 'package:party/widgets/cached_image.dart';
 
 class FriendTile extends HookWidget {
@@ -20,7 +20,6 @@ class FriendTile extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pageController = useProvider(pageControllerProvider);
     final invitedUids = useProvider(invitedUidsProvider);
     final groupMembersUids = useProvider(groupMembersUidsProvider);
     return Container(
@@ -29,8 +28,8 @@ class FriendTile extends HookWidget {
       width: 206,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: (isForParty && groupMembersUids.state.contains(friend.uid)) ||
-                (isForGroup && invitedUids.state.contains(friend.uid))
+        color: (isForParty && invitedUids.state.contains(friend.uid)) ||
+                (isForGroup && groupMembersUids.state.contains(friend.uid))
             ? Colors.greenAccent
             : Theme.of(context).primaryColorDark,
       ),
@@ -85,6 +84,7 @@ class FriendTile extends HookWidget {
                                 .state
                                 .add(friend.uid);
                           }
+                          print(invitedUids.state.toString());
                         } else {
                           if (groupMembersUids.state.contains(friend.uid)) {
                             context
@@ -97,9 +97,8 @@ class FriendTile extends HookWidget {
                                 .state
                                 .add(friend.uid);
                           }
+                          print(groupMembersUids.state.toString());
                         }
-                        print(groupMembersUids.state.toString());
-                        print(invitedUids.state.toString());
                       },
                     )
                   : Row(
@@ -109,10 +108,8 @@ class FriendTile extends HookWidget {
                           iconSize: 20,
                           onPressed: () {
                             context.read(messageDataProvider).state = friend;
-                            context.read(pageIndexProvider).state = 1;
-                            pageController.animateToPage(1,
-                                duration: Duration(milliseconds: 800),
-                                curve: Curves.easeIn);
+                            Navigator.of(context)
+                                .pushNamed(FriendScreen.routeName);
                           },
                         ),
                         IconButton(

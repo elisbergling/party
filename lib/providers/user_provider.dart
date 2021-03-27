@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/models/friend.dart';
 import 'package:party/providers/auth_provider.dart';
+import 'package:party/providers/state_provider.dart';
 import 'package:party/services/user_service.dart';
 
 final userProvider = ChangeNotifierProvider<UserService>((ref) {
@@ -22,13 +23,15 @@ final userUserStreamProvider = StreamProvider.autoDispose<Friend>((ref) {
 
 final userUsersStreamProvider = StreamProvider.autoDispose<List<Friend>>((ref) {
   final user = ref?.watch(userProvider);
+  final name = ref?.watch(friendsSearchProvider);
   ref.maintainState = true;
-  return user?.usersStream() ?? const Stream.empty();
+  return user?.usersStream(name: name.state) ?? const Stream.empty();
 });
 
 final userRequestStreamProvider =
     StreamProvider.autoDispose<List<Friend>>((ref) {
   final user = ref?.watch(userProvider);
+  final name = ref?.watch(friendsSearchProvider);
   ref.maintainState = true;
-  return user?.requestStream() ?? const Stream.empty();
+  return user?.requestStream(name: name.state) ?? const Stream.empty();
 });

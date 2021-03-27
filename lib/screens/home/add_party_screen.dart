@@ -17,6 +17,8 @@ class AddPartyScreen extends HookWidget {
     Key key,
   }) : super(key: key);
 
+  static const routeName = '/add_party';
+
   String validator(value) {
     if (value.isEmpty) {
       return 'Well, you have to enter a name';
@@ -33,7 +35,9 @@ class AddPartyScreen extends HookWidget {
     final controllerPrice = useTextEditingController();
     final invitedUids = useProvider(invitedUidsProvider);
     final friendFriendsStream = useProvider(friendFriendsStreamProvider);
-    //final controllerTime = useTextEditingController();
+    final partyDate = useProvider(partyDateProvider);
+    final partyTimeOfDay = useProvider(partyTimeOfDayProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('new partrry'),
@@ -59,6 +63,34 @@ class AddPartyScreen extends HookWidget {
               isForm: true,
               textEditingController: controllerPrice,
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                RaisedButton(
+                  onPressed: () async {
+                    context.read(partyDateProvider).state =
+                        await showDatePicker(
+                      context: context,
+                      initialDate: partyDate.state ?? DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(Duration(days: 365)),
+                    );
+                  },
+                  child: Text('Select Date'),
+                ),
+                RaisedButton(
+                  onPressed: () async {
+                    context.read(partyTimeOfDayProvider).state =
+                        await showTimePicker(
+                      context: context,
+                      initialTime: partyTimeOfDay.state ?? TimeOfDay.now(),
+                      initialEntryMode: TimePickerEntryMode.input,
+                    );
+                  },
+                  child: Text('Select Time'),
+                ),
+              ],
+            ),
             Container(
               height: 160,
               child: friendFriendsStream.when(
@@ -74,12 +106,13 @@ class AddPartyScreen extends HookWidget {
                 error: (e, s) => MyErrorWidget(e: e, s: s),
               ),
             ),
-            /*
-            CustomTextField(
-              text: 'time',
-              isForm: true,
-              textEditingController: controllerTime,
-            ),*/
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(partyDate.state.toString().split(' ')[0] + ' '),
+                Text(partyTimeOfDay.state.toString())
+              ],
+            ),
             Text(invitedUids.state.toString()),
             !party.isLoading
                 ? RaisedButton(
@@ -89,7 +122,14 @@ class AddPartyScreen extends HookWidget {
                             imgUrl: '',
                             name: controllerName.text,
                             price: int.parse(controllerPrice.text),
-                            time: Timestamp.now(),
+                            time: Timestamp.fromDate(
+                              partyDate.state.add(
+                                Duration(
+                                  hours: partyTimeOfDay.state.hour,
+                                  minutes: partyTimeOfDay.state.minute,
+                                ),
+                              ),
+                            ),
                             invitedUids: invitedUids.state,
                           );
                       showActionDialog(
@@ -105,6 +145,8 @@ class AddPartyScreen extends HookWidget {
                         controllerAbout.text = '';
                         controllerPrice.text = '';
                         context.read(invitedUidsProvider).state.clear();
+                        context.read(partyDateProvider).state = null;
+                        context.read(partyTimeOfDayProvider).state = null;
                       }
                     },
                     child: Text('Create Party'),

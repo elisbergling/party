@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'package:flutter/material.dart';
 
 void showActionDialog({
@@ -22,4 +24,9 @@ void showActionDialog({
       ],
     ),
   );
+}
+
+String timeAGo({Timestamp timestamp}) {
+  DateTime dateTime = timestamp.toDate();
+  return timeago.format(dateTime);
 }

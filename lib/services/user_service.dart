@@ -34,10 +34,14 @@ class UserService extends AbstractUserService {
     }
   }
 
-  Stream<List<Friend>> usersStream() {
+  Stream<List<Friend>> usersStream({String name}) {
     try {
-      return userCollection.snapshots().map(
-          (event) => event.docs.map((e) => Friend.fromJson(e.data())).toList());
+      return userCollection
+          .where(NAME, isGreaterThanOrEqualTo: name)
+          .where(NAME, isLessThanOrEqualTo: name + '\uf8ff')
+          .snapshots()
+          .map((event) =>
+              event.docs.map((e) => Friend.fromJson(e.data())).toList());
     } catch (e) {
       print(e.message);
       _error = e.message;
@@ -46,9 +50,11 @@ class UserService extends AbstractUserService {
     }
   }
 
-  Stream<List<Friend>> requestStream() {
+  Stream<List<Friend>> requestStream({String name}) {
     try {
       return userCollection
+          //.where(NAME, isGreaterThanOrEqualTo: name)
+          //.where(NAME, isLessThanOrEqualTo: name + '\uf8ff')
           .where(REQUEST_UIDS, arrayContains: uid)
           .snapshots()
           .map((event) =>
@@ -101,8 +107,8 @@ class UserService extends AbstractUserService {
       _isLoading = true;
       notifyListeners();
       await userCollection.doc(uid)?.update({
-        'name': name,
-        'username': username,
+        NAME: name,
+        USERNAME: username,
       });
     } catch (e) {
       print(e.message);

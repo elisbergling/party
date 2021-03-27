@@ -20,3 +20,10 @@ final friendFriendsStreamProvider =
   ref.maintainState = true;
   return friend?.friendsStream() ?? const Stream.empty();
 });
+
+final friendFriendsFutureProvider =
+    FutureProvider.autoDispose<List<Friend>>((ref) {
+  final friend = ref?.watch(friendProvider);
+  ref.maintainState = true;
+  return friend?.friendsFuture() ?? const Stream.empty();
+});

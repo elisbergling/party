@@ -8,6 +8,7 @@ class CustomTextField extends HookWidget {
     this.isForm = false,
     this.isObscure = false,
     this.validator,
+    this.onChanged,
     this.textEditingController,
   }) : super(key: key);
 
@@ -15,6 +16,7 @@ class CustomTextField extends HookWidget {
   final bool isForm;
   final bool isObscure;
   final Function validator;
+  final Function onChanged;
   final TextEditingController textEditingController;
 
   @override
@@ -38,6 +40,7 @@ class CustomTextField extends HookWidget {
               )
             : TextField(
                 controller: textEditingController,
+                onChanged: onChanged,
                 decoration: InputDecoration(
                   hintText: text,
                 ),

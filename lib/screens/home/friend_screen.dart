@@ -17,6 +17,8 @@ class FriendScreen extends HookWidget {
     Key key,
   }) : super(key: key);
 
+  static const routeName = '/friend_screen';
+
   @override
   Widget build(BuildContext context) {
     final messageData = useProvider(messageDataProvider);
