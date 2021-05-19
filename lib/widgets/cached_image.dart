@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:party/constants/colors.dart';
 
 class CachedImage extends StatelessWidget {
   final String imageUrl;
@@ -61,7 +62,7 @@ class CachedImage extends StatelessWidget {
       width: width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: color == null ? Theme.of(context).primaryColorLight : color,
+        color: color == null ? babyBlue : color,
       ),
       child: name != null
           ? Center(
@@ -69,9 +70,7 @@ class CachedImage extends StatelessWidget {
                 name.split('')[0],
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: textColor == null
-                      ? Theme.of(context).primaryColorDark
-                      : textColor,
+                  color: textColor == null ? babyWhite : textColor,
                   fontWeight: FontWeight.bold,
                   fontSize: height / 2.2,
                 ),

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:party/constants/strings.dart';
 import 'package:party/models/friend.dart';
+import 'package:party/models/location_info.dart';
 import 'package:party/models/party.dart';
 import 'package:uuid/uuid.dart';
 
@@ -94,6 +95,7 @@ class PartyService with ChangeNotifier {
     String imgUrl,
     Timestamp time,
     List<String> invitedUids,
+    LocationInfo locationInfo,
   }) async {
     try {
       _isLoading = true;
@@ -103,10 +105,11 @@ class PartyService with ChangeNotifier {
           price == null ||
           imgUrl == null ||
           time == null ||
+          locationInfo == null ||
           name.trim() == '' ||
           about.trim() == '' ||
           price.toString().trim() == '') {
-        _error = 'No Field can be empyt';
+        _error = 'No Field can be empty';
       } else {
         Uuid uuid = Uuid();
         DocumentSnapshot documentSnapshot = await userCollection.doc(uid).get();
@@ -121,6 +124,11 @@ class PartyService with ChangeNotifier {
           invitedUids: invitedUids ?? [],
           hostUid: uid,
           hostName: Friend.fromJson(documentSnapshot.data()).name,
+          address: locationInfo.address,
+          country: locationInfo.country,
+          latitude: locationInfo.latitude,
+          longitude: locationInfo.longitude,
+          postalCode: locationInfo.postalCode,
         );
         await partyCollection.doc(party.id).set(party.toJson());
       }
@@ -178,6 +186,7 @@ class PartyService with ChangeNotifier {
         COMING_UIDS: FieldValue.arrayUnion([uid])
       });
     } catch (e) {
+      _isLoading = false;
       print(e.message);
       _error = e.message;
       notifyListeners();

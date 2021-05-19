@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/all.dart';
+import 'package:party/constants/colors.dart';
 import 'package:party/constants/global.dart';
 import 'package:party/providers/friend_provider.dart';
 import 'package:party/providers/group_provider.dart';
 import 'package:party/providers/state_provider.dart';
+import 'package:party/widgets/background_gradient.dart';
+import 'package:party/widgets/custom_back_button.dart';
+import 'package:party/widgets/custom_button.dart';
 import 'package:party/widgets/custom_text_field.dart';
 import 'package:party/widgets/friend_tile.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
@@ -29,61 +33,74 @@ class AddGroupScreen extends HookWidget {
     final controllerName = useTextEditingController();
     final friendFriendsStream = useProvider(friendFriendsStreamProvider);
     final groupMembersUids = useProvider(groupMembersUidsProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('new grouip'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            CustomTextField(
-              text: 'name',
-              isForm: true,
-              textEditingController: controllerName,
-              validator: validator,
+    return BackgroundGradient(
+      child: Scaffold(
+        appBar: AppBar(
+          leading: CustomBackButton(),
+          title: Text(
+            'New Group',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 30,
+              color: dark,
             ),
-            Container(
-              height: 160,
-              child: friendFriendsStream.when(
-                data: (friends) => ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: friends.length,
-                  itemBuilder: (context, index) => FriendTile(
-                    friend: friends[index],
-                    isForGroup: true,
-                    isForParty: false,
-                  ),
-                ),
-                loading: () => MyLoadingWidget(),
-                error: (e, s) => MyErrorWidget(e: e, s: s),
+          ),
+        ),
+        body: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              CustomTextField(
+                text: 'name',
+                isForm: true,
+                textEditingController: controllerName,
+                validator: validator,
               ),
-            ),
-            !group.isLoading
-                ? RaisedButton(
-                    onPressed: () async {
-                      await context.read(groupProvider).addGroup(
-                            imgUrl: '',
-                            name: controllerName.text,
-                            membersUids: groupMembersUids.state,
-                          );
-                      showActionDialog(
-                        ctx: context,
-                        service: group,
-                        message: group.error,
-                        title: group.error == ''
-                            ? 'Created Group Sucessfully'
-                            : 'Something went wrong',
-                      );
-                      if (group.error == '') {
-                        controllerName.text = '';
-                        context.read(groupMembersUidsProvider).state.clear();
-                      }
-                    },
-                    child: Text('Create Group'),
-                  )
-                : MyLoadingWidget(),
-          ],
+              Container(
+                height: 141,
+                child: friendFriendsStream.when(
+                  data: (friends) => ListView.builder(
+                    cacheExtent: 10000,
+                    physics: BouncingScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: friends.length,
+                    itemBuilder: (context, index) => FriendTile(
+                      friend: friends[index],
+                      isForGroup: true,
+                      isForParty: false,
+                    ),
+                  ),
+                  loading: () => MyLoadingWidget(),
+                  error: (e, s) => MyErrorWidget(e: e, s: s),
+                ),
+              ),
+              const SizedBox(height: 40),
+              !group.isLoading
+                  ? CustomButton(
+                      onTap: () async {
+                        await context.read(groupProvider).addGroup(
+                              imgUrl: '',
+                              name: controllerName.text,
+                              membersUids: groupMembersUids.state,
+                            );
+                        showActionDialog(
+                          ctx: context,
+                          service: group,
+                          message: group.error,
+                          title: group.error == ''
+                              ? 'Created Group Sucessfully'
+                              : 'Something went wrong',
+                        );
+                        if (group.error == '') {
+                          controllerName.text = '';
+                          context.read(groupMembersUidsProvider).state.clear();
+                        }
+                      },
+                      text: 'Create Group',
+                    )
+                  : MyLoadingWidget(),
+            ],
+          ),
         ),
       ),
     );

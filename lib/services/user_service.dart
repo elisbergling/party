@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hooks_riverpod/all.dart';
 import 'package:party/constants/strings.dart';
 import 'package:party/models/friend.dart';
+import 'package:party/providers/image_provider.dart';
 
 abstract class AbstractUserService with ChangeNotifier {
   bool _isLoading = false;
@@ -36,12 +38,20 @@ class UserService extends AbstractUserService {
 
   Stream<List<Friend>> usersStream({String name}) {
     try {
-      return userCollection
-          .where(NAME, isGreaterThanOrEqualTo: name)
-          .where(NAME, isLessThanOrEqualTo: name + '\uf8ff')
-          .snapshots()
-          .map((event) =>
-              event.docs.map((e) => Friend.fromJson(e.data())).toList());
+      return userCollection.where(USERNAME, isEqualTo: name).snapshots().map(
+          (event) => event.docs.map((e) => Friend.fromJson(e.data())).toList());
+    } catch (e) {
+      print(e.message);
+      _error = e.message;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<List<Friend>> usersFuture({String name}) async {
+    try {
+      return await userCollection.where(USERNAME, isEqualTo: name).get().then(
+          (event) => event.docs.map((e) => Friend.fromJson(e.data())).toList());
     } catch (e) {
       print(e.message);
       _error = e.message;
@@ -89,6 +99,25 @@ class UserService extends AbstractUserService {
       _isLoading = true;
       notifyListeners();
       await userCollection.doc(uid)?.delete();
+    } catch (e) {
+      print(e.message);
+      _error = e.message;
+      notifyListeners();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateImgUrl({String uid}) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      String url;
+      url = await ProviderContainer().read(imageProvider).getDownloadUrl(uid);
+      await userCollection.doc(uid)?.update({
+        IMG_URL: url,
+      });
     } catch (e) {
       print(e.message);
       _error = e.message;

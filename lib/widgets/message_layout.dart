@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:party/constants/colors.dart';
 import 'package:party/constants/global.dart';
 import 'package:party/models/message.dart';
 
@@ -49,17 +50,13 @@ class MessageLayout extends StatelessWidget {
                     isMe ? Radius.circular(0.0) : Radius.circular(10.0),
                 bottomLeft: isMe ? Radius.circular(10.0) : Radius.circular(0.0),
               ),
-              color: isMe
-                  ? Theme.of(context).primaryColorDark
-                  : Theme.of(context).primaryColorDark,
+              color: isMe ? blue : babyWhite,
             ),
             child: Text(
               message.message,
               textAlign: TextAlign.start,
               style: TextStyle(
-                color: !isMe
-                    ? Theme.of(context).primaryColorLight
-                    : Theme.of(context).primaryColorLight,
+                color: isMe ? babyWhite : dark,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -76,7 +73,7 @@ class MessageLayout extends StatelessWidget {
               time,
               textAlign: isMe ? TextAlign.end : TextAlign.start,
               style: TextStyle(
-                color: Colors.black,
+                color: dark,
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),

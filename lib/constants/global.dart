@@ -14,7 +14,7 @@ void showActionDialog({
       title: Text(title),
       content: Text(message),
       actions: [
-        FlatButton(
+        TextButton(
           onPressed: () {
             service.error = '';
             Navigator.of(ctx).pop();
@@ -28,5 +28,24 @@ void showActionDialog({
 
 String timeAGo({Timestamp timestamp}) {
   DateTime dateTime = timestamp.toDate();
-  return timeago.format(dateTime);
+  return timeago.format(dateTime).replaceAll('ago', '');
+}
+
+String formatTimestamp({Timestamp timestamp}) {
+  DateTime dateTime = timestamp.toDate();
+  String minute;
+  if (dateTime.minute.toString().length == 1) {
+    minute = '0' + dateTime.minute.toString();
+  } else {
+    minute = dateTime.minute.toString();
+  }
+  return dateTime.year.toString() +
+      '/' +
+      dateTime.month.toString() +
+      '/' +
+      dateTime.day.toString() +
+      ' ' +
+      dateTime.hour.toString() +
+      ':' +
+      minute;
 }

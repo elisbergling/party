@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/all.dart';
 import 'package:party/constants/enum.dart';
 import 'package:party/models/friend.dart';
+import 'package:party/models/location_info.dart';
 import 'package:party/models/party.dart';
 
 final isLoginProvider = StateProvider<bool>((_) => false);
@@ -30,3 +31,5 @@ final profileStreamTypeProvider =
 
 final messageDataProvider = StateProvider<dynamic>(
     (_) => Friend(name: 'Start texting with your friends'));
+
+final locationInfoProvider = StateProvider<LocationInfo>((_) => null);

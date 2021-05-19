@@ -28,6 +28,14 @@ final userUsersStreamProvider = StreamProvider.autoDispose<List<Friend>>((ref) {
   return user?.usersStream(name: name.state) ?? const Stream.empty();
 });
 
+final userUsersFutureProvider =
+    FutureProvider.autoDispose<List<Friend>>((ref) async {
+  final user = ref?.watch(userProvider);
+  final name = ref?.watch(friendsSearchProvider);
+  ref.maintainState = true;
+  return await user?.usersFuture(name: name.state) ?? const Stream.empty();
+});
+
 final userRequestStreamProvider =
     StreamProvider.autoDispose<List<Friend>>((ref) {
   final user = ref?.watch(userProvider);

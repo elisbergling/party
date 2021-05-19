@@ -7,11 +7,11 @@ import 'auth_provider.dart';
 
 final messageProvider = ChangeNotifierProvider<MessageService>((ref) {
   final auth = ref?.watch(authStateChangesProvider);
-  final messageData = ref?.watch(messageDataProvider);
+  final messageType = ref?.watch(messageTypeProvider);
   if (auth?.data?.value?.uid != null) {
     return MessageService(
       uid: auth?.data?.value?.uid,
-      messageData: messageData.state.runtimeType,
+      messageType: messageType.state,
     );
   }
   return null;

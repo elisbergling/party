@@ -1,10 +1,15 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/all.dart';
+import 'package:party/constants/colors.dart';
 import 'package:party/models/friend.dart';
 import 'package:party/providers/state_provider.dart';
 import 'package:party/providers/user_provider.dart';
 import 'package:party/widgets/add_friend_tile.dart';
+import 'package:party/widgets/background_gradient.dart';
+import 'package:party/widgets/custom_back_button.dart';
+import 'package:party/widgets/custom_button.dart';
 import 'package:party/widgets/custom_text_field.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
@@ -16,55 +21,84 @@ class AddFriendScreen extends HookWidget {
   static const routeName = '/add_friend';
   @override
   Widget build(BuildContext context) {
-    final userUsersStream = useProvider(userUsersStreamProvider);
+    final userUsersFuture = useProvider(userUsersFutureProvider);
     final userRequestStream = useProvider(userRequestStreamProvider);
     final isRequest = useProvider(isRequestProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('fin new friend'),
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              RaisedButton(
-                onPressed: () {
-                  context.read(isRequestProvider).state = false;
-                  print('all');
-                },
-                child: Text('All'),
+    final height = useState<double>(90);
+    final opacity = useState<double>(1);
+    return GestureDetector(
+      onTap: FocusScope.of(context).unfocus,
+      child: BackgroundGradient(
+        child: Scaffold(
+          appBar: AppBar(
+            leading: CustomBackButton(),
+            title: Text(
+              'Add new friend',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 30,
+                color: dark,
               ),
-              RaisedButton(
-                onPressed: () {
-                  context.read(isRequestProvider).state = true;
-                  print('requset');
-                },
-                child: Text('Requests'),
+            ),
+          ),
+          body: Column(
+            children: [
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CustomButton(
+                    onTap: () {
+                      context.read(isRequestProvider).state = false;
+                      height.value = 90;
+                      opacity.value = 1;
+                    },
+                    text: 'All',
+                  ),
+                  CustomButton(
+                    onTap: () {
+                      context.read(isRequestProvider).state = true;
+                      height.value = 0;
+                      opacity.value = 0;
+                      FocusScope.of(context).unfocus();
+                    },
+                    text: 'Requests',
+                  ),
+                ],
+              ),
+              AnimatedOpacity(
+                opacity: opacity.value,
+                duration: Duration(milliseconds: 100),
+                curve: Curves.easeIn,
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 100),
+                  curve: Curves.easeIn,
+                  height: height.value,
+                  child: CustomTextField(
+                    text: 'search',
+                    icon: CupertinoIcons.search,
+                    onChanged: (String val) =>
+                        context.read(friendsSearchProvider).state = val,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: isRequest.state
+                    ? userRequestStream.when(
+                        data: buildGridView,
+                        loading: () => MyLoadingWidget(),
+                        error: (e, s) => MyErrorWidget(e: e, s: s),
+                      )
+                    : userUsersFuture.when(
+                        data: buildGridView,
+                        loading: () => MyLoadingWidget(),
+                        error: (e, s) => MyErrorWidget(e: e, s: s),
+                      ),
               ),
             ],
           ),
-          CustomTextField(
-            text: 'search',
-            onChanged: (String val) =>
-                context.read(friendsSearchProvider).state = val,
-          ),
-          Expanded(
-            child: isRequest.state
-                ? userRequestStream.when(
-                    data: buildGridView,
-                    loading: () => MyLoadingWidget(),
-                    error: (e, s) => MyErrorWidget(e: e, s: s),
-                  )
-                : userUsersStream.when(
-                    data: buildGridView,
-                    loading: () => MyLoadingWidget(),
-                    error: (e, s) => MyErrorWidget(e: e, s: s),
-                  ),
-          ),
-        ],
+        ),
       ),
     );
   }

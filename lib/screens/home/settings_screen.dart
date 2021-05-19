@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:party/constants/colors.dart';
+import 'package:party/widgets/background_gradient.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key key}) : super(key: key);
@@ -7,8 +9,19 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text("SETTINGS"),
+    return BackgroundGradient(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Settings',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 30,
+              color: dark,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,10 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/all.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/providers/auth_provider.dart';
-import 'package:party/providers/provider.dart';
+import 'package:party/providers/state_provider.dart';
 import 'package:party/screens/auth/auth_screen.dart';
 import 'package:party/screens/home/add_friend_screen.dart';
 import 'package:party/screens/home/add_group_screen.dart';
@@ -20,8 +21,9 @@ import 'package:party/screens/home/user_screen.dart';
 import 'package:party/screens/temp/error_screen.dart';
 import 'package:party/screens/temp/loading_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(ProviderScope(child: MyApp()));
 }
 
@@ -32,25 +34,22 @@ class MyApp extends HookWidget {
     final authStateChanges = useProvider(authStateChangesProvider);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Party',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        accentColor: green,
-        primaryColor: pink,
-        primaryColorDark: purple,
-        primaryColorLight: yellow,
-        scaffoldBackgroundColor: green,
-        buttonColor: pink,
+        accentColor: blue,
+        scaffoldBackgroundColor: Colors.transparent,
         appBarTheme: AppBarTheme(
-          color: purple,
           elevation: 0,
+          backgroundColor: Colors.transparent,
           titleTextStyle: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 30,
             color: Colors.white,
           ),
         ),
-        textSelectionTheme: TextSelectionThemeData(cursorColor: green),
+        textSelectionTheme: TextSelectionThemeData(cursorColor: blue),
+        iconTheme: IconThemeData(color: dark),
         inputDecorationTheme: InputDecorationTheme(
           border: InputBorder.none,
           focusedBorder: InputBorder.none,
@@ -71,6 +70,7 @@ class MyApp extends HookWidget {
         AddGroupScreen.routeName: (context) => AddGroupScreen(),
         AddPartyScreen.routeName: (context) => AddPartyScreen(),
         PartyScreen.routeName: (context) => PartyScreen(),
+        MyHomePage.routeName: (context) => MyHomePage(),
       },
       home: initializeApp.when(
         data: (_) => authStateChanges.when(
@@ -86,6 +86,7 @@ class MyApp extends HookWidget {
 }
 
 class MyHomePage extends HookWidget {
+  static const routeName = '/my-home-page';
   @override
   Widget build(BuildContext context) {
     const List<Widget> pages = [
@@ -94,40 +95,71 @@ class MyHomePage extends HookWidget {
       MapScreen(),
       SettingsScreen(),
     ];
-    final pageController = useProvider(pageControllerProvider);
+    final pageIndex = useProvider(pageIndexProvider);
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: (i) {
-          //context.read(pageIndexProvider).state = 1;
-          pageController.animateToPage(i,
-              duration: Duration(milliseconds: 800), curve: Curves.easeIn);
-        },
-        backgroundColor: Colors.red,
-        selectedItemColor: Theme.of(context).accentColor,
-        unselectedItemColor: Theme.of(context).accentColor,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.message),
-            label: 'messages',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: 'parties',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'settings',
-          )
-        ],
+      backgroundColor: babyWhite,
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        child: BottomNavigationBar(
+          onTap: (i) {
+            context.read(pageIndexProvider).state = i;
+          },
+          currentIndex: pageIndex.state,
+          selectedItemColor: blue,
+          unselectedItemColor: grey,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          iconSize: 28,
+          backgroundColor: babyWhite,
+          elevation: 0,
+          type: BottomNavigationBarType.fixed,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.person),
+              label: 'profile',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.bubble_left_bubble_right),
+              label: 'messages',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.location),
+              label: 'parties',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.gear),
+              label: 'settings',
+            )
+          ],
+        ),
       ),
-      body: PageView(
-        controller: pageController,
-        //onPageChanged: (i) => context.read(pageIndexProvider).state = i,
-        children: pages,
+      body: Stack(
+        children: [
+          Center(
+            child: pages.elementAt(pageIndex.state),
+          ),
+          Positioned(
+            bottom: 0,
+            child: Material(
+              elevation: 10,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+              ),
+              child: Container(
+                height: 10,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                  ),
+                  color: babyWhite,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
