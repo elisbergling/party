@@ -17,8 +17,13 @@ class SettingsScreen extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: dark,
+              color: white,
             ),
+          ),
+        ),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: blue,
           ),
         ),
       ),

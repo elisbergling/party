@@ -3,6 +3,7 @@ import 'package:geocoder/geocoder.dart' as geoCo;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:party/models/location_info.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class MapService with ChangeNotifier {
   GoogleMapController _mapController;
@@ -18,6 +19,8 @@ class MapService with ChangeNotifier {
 
   Future onMapCreated(GoogleMapController controller) async {
     _mapController = controller;
+    final mapStyle = await rootBundle.loadString('assets/map_style.json');
+    await _mapController.setMapStyle(mapStyle);
     await getCurrentLocation();
     notifyListeners();
   }

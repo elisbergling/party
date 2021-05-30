@@ -53,7 +53,7 @@ class AddPartyScreen extends HookWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: dark,
+              color: white,
             ),
           ),
         ),

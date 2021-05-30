@@ -52,22 +52,30 @@ class AnimatedCustomButton extends AnimatedWidget {
   @override
   Widget build(BuildContext context) {
     final animation = Tween(begin: 10.0, end: 2.0).animate(controller);
-    return Material(
-      elevation: animation.value,
-      borderRadius: BorderRadius.circular(15),
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 10),
-        padding: EdgeInsets.symmetric(
-          vertical: 10 - padding,
-          horizontal: 15 - padding,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: blue,
-        ),
-        child: Text(
-          text,
-          style: TextStyle(color: babyWhite, fontWeight: FontWeight.w700),
+    return Container(
+      padding: const EdgeInsets.all(0.6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15.6),
+        color: blue,
+      ),
+      child: Material(
+        elevation: animation.value,
+        borderRadius: BorderRadius.circular(15),
+        color: black,
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 10),
+          padding: EdgeInsets.symmetric(
+            vertical: 10 - padding,
+            horizontal: 15 - padding,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            color: blue.withOpacity(0.2),
+          ),
+          child: Text(
+            text,
+            style: TextStyle(color: blue, fontWeight: FontWeight.w700),
+          ),
         ),
       ),
     );

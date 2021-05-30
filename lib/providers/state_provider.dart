@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/all.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/enum.dart';
 import 'package:party/models/friend.dart';
 import 'package:party/models/location_info.dart';

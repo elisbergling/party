@@ -10,14 +10,14 @@ class InfoBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: blue,
+        color: blue.withOpacity(0.2),
         borderRadius: BorderRadius.circular(50),
       ),
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
       child: Text(
         text,
         style: TextStyle(
-          color: babyWhite,
+          color: blue,
           fontSize: 14,
           fontWeight: FontWeight.w700,
         ),

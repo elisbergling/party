@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hooks_riverpod/all.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/constants/enum.dart';
 import 'package:party/providers/friend_provider.dart';
@@ -38,30 +38,44 @@ class MessagesScreen extends HookWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: dark,
+              color: white,
             ),
           ),
           actions: [
             IconButton(
               icon: FaIcon(
                 FontAwesomeIcons.userAlt,
-                color: dark,
+                color: white,
               ),
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(AddFriendScreen.routeName),
+              onPressed: () => showModalBottomSheet(
+                context: context,
+                backgroundColor: dark,
+                isScrollControlled: true,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                builder: (context) => AddFriendScreen(),
+              ),
             ),
             IconButton(
               icon: FaIcon(
                 FontAwesomeIcons.users,
-                color: dark,
+                color: white,
               ),
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(AddGroupScreen.routeName),
+              onPressed: () => showModalBottomSheet(
+                context: context,
+                backgroundColor: dark,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                builder: (context) => AddGroupScreen(),
+              ),
             ),
           ],
         ),
         body: Column(
           children: [
+            const SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

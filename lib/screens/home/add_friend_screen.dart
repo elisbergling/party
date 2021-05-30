@@ -1,15 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/all.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/models/friend.dart';
 import 'package:party/providers/state_provider.dart';
 import 'package:party/providers/user_provider.dart';
 import 'package:party/widgets/add_friend_tile.dart';
-import 'package:party/widgets/background_gradient.dart';
-import 'package:party/widgets/custom_back_button.dart';
 import 'package:party/widgets/custom_button.dart';
+import 'package:party/widgets/custom_close_button.dart';
 import 'package:party/widgets/custom_text_field.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
@@ -26,18 +25,20 @@ class AddFriendScreen extends HookWidget {
     final isRequest = useProvider(isRequestProvider);
     final height = useState<double>(90);
     final opacity = useState<double>(1);
-    return GestureDetector(
-      onTap: FocusScope.of(context).unfocus,
-      child: BackgroundGradient(
+    return Container(
+      height: 550,
+      child: GestureDetector(
+        onTap: FocusScope.of(context).unfocus,
         child: Scaffold(
           appBar: AppBar(
-            leading: CustomBackButton(),
+            leading: CustomCloseButton(),
+            centerTitle: true,
             title: Text(
-              'Add new friend',
+              'Add New Friend',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 30,
-                color: dark,
+                color: white,
               ),
             ),
           ),
@@ -77,12 +78,14 @@ class AddFriendScreen extends HookWidget {
                   height: height.value,
                   child: CustomTextField(
                     text: 'search',
+                    color: black,
                     icon: CupertinoIcons.search,
                     onChanged: (String val) =>
                         context.read(friendsSearchProvider).state = val,
                   ),
                 ),
               ),
+              if (isRequest.state) const SizedBox(height: 20),
               Expanded(
                 child: isRequest.state
                     ? userRequestStream.when(
@@ -117,6 +120,7 @@ class AddFriendScreen extends HookWidget {
         return AddFriendTile(
           isLeft: index % 2 == 0,
           friend: users[index],
+          color: dark,
         );
       },
     );

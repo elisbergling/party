@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hooks_riverpod/all.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/enum.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/providers/auth_provider.dart';
@@ -41,16 +41,16 @@ class ProfileScreen extends HookWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: dark,
+              color: white,
             ),
           ),
           actions: [
             IconButton(
               icon: FaIcon(
                 FontAwesomeIcons.signOutAlt,
-                color: dark,
+                color: white,
               ),
-              onPressed: () async => context.read(authProvider).logOut(),
+              onPressed: () async => await context.read(authProvider).logOut(),
             )
           ],
         ),
@@ -78,7 +78,7 @@ class ProfileScreen extends HookWidget {
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: dark,
+                            color: white,
                           ),
                         ),
                         const SizedBox(height: 5),
@@ -96,18 +96,22 @@ class ProfileScreen extends HookWidget {
                     IconButton(
                       icon: Icon(
                         CupertinoIcons.refresh_thick,
-                        color: dark,
+                        color: white,
                         size: 30,
                       ),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => UpdateUserInfoScreen(
+                      onPressed: () => showModalBottomSheet(
+                        context: context,
+                        backgroundColor: dark,
+                        isScrollControlled: true,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        builder: (context) => UpdateUserInfoScreen(
                             name: data.name,
                             username: data.username,
                             imgUrl: data.imgUrl,
                             uid: data.uid,
                           ),
-                        ),
                       ),
                     ),
                     const SizedBox(width: 20),

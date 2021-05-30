@@ -2,13 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:hooks_riverpod/all.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/constants/global.dart';
+import 'package:party/models/party.dart';
+import 'package:party/providers/auth_provider.dart';
 import 'package:party/providers/party_provider.dart';
 import 'package:party/providers/state_provider.dart';
+import 'package:party/services/party_service.dart';
 import 'package:party/widgets/add_friend_tile.dart';
 import 'package:party/widgets/background_gradient.dart';
+import 'package:party/widgets/border_gradient.dart';
 import 'package:party/widgets/cached_image.dart';
 import 'package:party/widgets/custom_back_button.dart';
 import 'package:party/widgets/custom_button.dart';
@@ -25,6 +29,7 @@ class PartyScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final uid = useProvider(authProvider).auth.currentUser.uid;
     final party = useProvider(partyProvider);
     final partyData = useProvider(partyDataProvider);
     LatLng coords;
@@ -33,7 +38,6 @@ class PartyScreen extends HookWidget {
         : coords = LatLng(partyData.state.latitude, partyData.state.longitude);
     final partyComingStream =
         useProvider(partyComingStreamProvider(partyData.state));
-    final someOneComing = useState<bool>(true);
     return BackgroundGradient(
       child: Scaffold(
         appBar: AppBar(
@@ -45,7 +49,7 @@ class PartyScreen extends HookWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: dark,
+              color: white,
             ),
           ),
         ),
@@ -55,9 +59,7 @@ class PartyScreen extends HookWidget {
             children: [
               Container(
                 margin: const EdgeInsets.all(20),
-                child: Material(
-                  elevation: 1,
-                  borderRadius: BorderRadius.circular(30),
+                child: BorderGradient(
                   child: Container(
                     padding: const EdgeInsets.only(
                       top: 0,
@@ -66,8 +68,8 @@ class PartyScreen extends HookWidget {
                       right: 20,
                     ),
                     decoration: BoxDecoration(
-                      color: babyWhite,
-                      borderRadius: BorderRadius.circular(30),
+                      color: black,
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Column(
                       children: [
@@ -85,12 +87,17 @@ class PartyScreen extends HookWidget {
                             children: [
                               Text(
                                 formatTimestamp(
-                                        timestamp: partyData.state.time) +
-                                    '   ' +
-                                    partyData.state.price.toString() +
-                                    ' kr',
+                                    timestamp: partyData.state.time),
                                 style: TextStyle(
-                                  color: dark,
+                                  color: white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              Text(
+                                '   ${partyData.state.price.toString()} kr',
+                                style: TextStyle(
+                                  color: purple,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -103,10 +110,17 @@ class PartyScreen extends HookWidget {
                           child: Text(
                             partyData.state.about,
                             style: TextStyle(
-                              color: dark,
+                              color: grey,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Divider(
+                            color: grey,
+                            height: 1,
                           ),
                         ),
                         Padding(
@@ -118,6 +132,7 @@ class PartyScreen extends HookWidget {
                                 partyData.state.address == null
                                     ? 'adress'
                                     : partyData.state.address.split(',')[0],
+                                style: TextStyle(color: grey),
                               ),
                               CustomButton(
                                 text: 'View on Map',
@@ -148,75 +163,94 @@ class PartyScreen extends HookWidget {
                   ),
                 ),
               ),
-              Text(
-                someOneComing.value ? 'coming:' : 'No one is coming yet',
-                style: TextStyle(
-                  color: dark,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                height: someOneComing.value ? 90 : 0,
-                child: partyComingStream.when(
-                  data: (coming) {
-                    if (coming.length == 0) {
-                      someOneComing.value = false;
-                      return Text('No one is coming yet');
-                    } else {
-                      someOneComing.value = true;
-                      return ListView.builder(
-                        cacheExtent: 10000,
-                        physics: BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: coming.length,
-                        itemBuilder: (context, index) => Container(
-                          margin: EdgeInsets.only(
-                            bottom: 10,
-                            right: index == coming.length - 1 ? 10 : 0,
-                          ),
-                          child: AddFriendTile(
-                            friend: coming[index],
-                            isLeft: true,
+              partyComingStream.when(
+                data: (coming) {
+                  if (coming.length == 0) {
+                    return Column(children: [
+                      Text(
+                        'No one is coming yet',
+                        style: TextStyle(color: white),
+                      ),
+                      const SizedBox(height: 10),
+                      !party.isLoading
+                          ? buildCustomButton(context, partyData, party)
+                          : MyLoadingWidget(),
+                    ]);
+                  } else {
+                    return Column(
+                      children: [
+                        Text(
+                          'Coming:',
+                          style: TextStyle(
+                            color: white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                      );
-                    }
-                  },
-                  loading: () => MyLoadingWidget(),
-                  error: (e, s) {
-                    print('error: ' + e);
-                    print('stackTrace: ' + s.toString());
-                    return MyErrorWidget(e: e, s: s);
-                  },
-                ),
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 20),
+                          height: 80,
+                          child: ListView.builder(
+                            cacheExtent: 10000,
+                            physics: BouncingScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            itemCount: coming.length,
+                            itemBuilder: (context, index) => Container(
+                              margin: EdgeInsets.only(
+                                bottom: 10,
+                                right: index == coming.length - 1 ? 10 : 0,
+                              ),
+                              child: AddFriendTile(
+                                friend: coming[index],
+                                isLeft: true,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        !coming.any((element) => element.uid == uid)
+                            ? buildCustomButton(context, partyData, party)
+                            : party.isLoading
+                                ? MyLoadingWidget()
+                                : Container(),
+                      ],
+                    );
+                  }
+                },
+                loading: () => MyLoadingWidget(),
+                error: (e, s) {
+                  print('error: ' + e);
+                  print('stackTrace: ' + s.toString());
+                  return MyErrorWidget(e: e, s: s);
+                },
               ),
-              const SizedBox(height: 5),
-              !party.isLoading
-                  ? CustomButton(
-                      onTap: () async {
-                        await context
-                            .read(partyProvider)
-                            .joinOrUnjoinParty(party: partyData.state);
-                        showActionDialog(
-                          ctx: context,
-                          service: party,
-                          message: party.error,
-                          title: party.error == ''
-                              ? 'Joined Party Sucessfully'
-                              : 'Something went wrong',
-                        );
-                        Navigator.of(context).pop();
-                      },
-                      text: 'join party',
-                    )
-                  : MyLoadingWidget(),
+
               //const SizedBox(height: 20),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  CustomButton buildCustomButton(BuildContext context,
+      StateController<Party> partyData, PartyService party) {
+    return CustomButton(
+      onTap: () async {
+        await context
+            .read(partyProvider)
+            .joinOrUnjoinParty(party: partyData.state);
+        showActionDialog(
+          ctx: context,
+          service: party,
+          message: party.error,
+          title: party.error == ''
+              ? 'Joined Party Sucessfully'
+              : 'Something went wrong',
+        );
+        Navigator.of(context).pop();
+      },
+      text: 'join party',
     );
   }
 }

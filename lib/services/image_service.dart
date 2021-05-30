@@ -23,7 +23,7 @@ class ImageService with ChangeNotifier {
         print("No file was selected");
         return null;
       }
-      await ref.putFile(File(file.path));
+      ref.putFile(File(file.path));
       //     .then((_) async => await ProviderContainer()
       //         .read(userProvider)
       //         .updateImgUrl(uid: uid))

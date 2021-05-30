@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/all.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/providers/auth_provider.dart';
 import 'package:party/providers/user_provider.dart';
@@ -9,8 +9,10 @@ import 'package:party/providers/state_provider.dart';
 import 'package:party/services/auth_service.dart';
 import 'package:party/services/user_service.dart';
 import 'package:party/widgets/background_gradient.dart';
+import 'package:party/widgets/border_gradient.dart';
 import 'package:party/widgets/custom_button.dart';
 import 'package:party/widgets/custom_text_field.dart';
+import 'package:party/widgets/temp/my_loading_widget.dart';
 
 class AuthScreen extends HookWidget {
   const AuthScreen({Key key}) : super(key: key);
@@ -64,14 +66,12 @@ class AuthScreen extends HookWidget {
               children: [
                 Container(
                   margin: const EdgeInsets.all(20),
-                  child: Material(
-                    elevation: 1,
-                    borderRadius: BorderRadius.circular(20),
+                  child: BorderGradient(
                     child: Container(
                       width: 750,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: babyWhite,
+                        color: black,
                       ),
                       child: Form(
                         key: _formKey,
@@ -79,7 +79,6 @@ class AuthScreen extends HookWidget {
                           children: [
                             if (!isLogin.state) ...[
                               CustomTextField(
-                                color: babyBlue,
                                 text: 'name',
                                 isForm: true,
                                 validator: (value) {
@@ -91,7 +90,6 @@ class AuthScreen extends HookWidget {
                                 textEditingController: controllerName,
                               ),
                               CustomTextField(
-                                color: babyBlue,
                                 text: 'username',
                                 isForm: true,
                                 validator: (value) {
@@ -110,7 +108,6 @@ class AuthScreen extends HookWidget {
                             ],
                             CustomTextField(
                               keyboardType: TextInputType.emailAddress,
-                              color: babyBlue,
                               text: 'email',
                               isForm: true,
                               validator: (value) {
@@ -123,7 +120,6 @@ class AuthScreen extends HookWidget {
                             ),
                             CustomTextField(
                               keyboardType: TextInputType.visiblePassword,
-                              color: babyBlue,
                               text: 'password',
                               isForm: true,
                               isObscure: true,
@@ -137,7 +133,6 @@ class AuthScreen extends HookWidget {
                             ),
                             if (!isLogin.state)
                               CustomTextField(
-                                color: babyBlue,
                                 text: 'confirm password',
                                 isForm: true,
                                 isObscure: true,
@@ -151,7 +146,7 @@ class AuthScreen extends HookWidget {
                                     controllerConfirmPassword,
                               ),
                             auth.isLoading
-                                ? CircularProgressIndicator()
+                                ? MyLoadingWidget()
                                 : CustomButton(
                                     onTap: () async {
                                       if (!_formKey.currentState.validate()) {
@@ -227,8 +222,14 @@ class AuthScreen extends HookWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       isLogin.state
-                          ? Text('Don\'t have an accont?')
-                          : Text('Already have an accout?'),
+                          ? Text(
+                              'Don\'t have an accont?',
+                              style: TextStyle(color: white),
+                            )
+                          : Text(
+                              'Already have an accout?',
+                              style: TextStyle(color: white),
+                            ),
                       const SizedBox(width: 20),
                       CustomButton(
                         onTap: () => isLogin.state = !isLogin.state,

@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/all.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/enum.dart';
 import 'package:party/constants/global.dart';
 import 'package:party/constants/colors.dart';
@@ -15,6 +15,7 @@ import 'package:party/providers/message_provider.dart';
 import 'package:party/providers/state_provider.dart';
 import 'package:party/screens/home/friend_screen.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
+import 'border_gradient.dart';
 import 'cached_image.dart';
 
 class ListItem extends HookWidget {
@@ -125,7 +126,7 @@ class AnimatedListTile extends AnimatedWidget {
                 textAlign: TextAlign.start,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: dark,
+                  color: white,
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
                 ),
@@ -141,7 +142,7 @@ class AnimatedListTile extends AnimatedWidget {
                 textAlign: TextAlign.start,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: darkGrey,
+                  color: grey,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -157,7 +158,7 @@ class AnimatedListTile extends AnimatedWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: blue,
+              color: blue.withOpacity(0.2),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -169,7 +170,7 @@ class AnimatedListTile extends AnimatedWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: babyWhite,
+                    color: blue,
                   ),
                 ),
               ],
@@ -183,27 +184,29 @@ class AnimatedListTile extends AnimatedWidget {
   @override
   Widget build(BuildContext context) {
     final animation = Tween<double>(begin: 1.0, end: 0.0).animate(controller);
-    return Material(
-      elevation: animation.value,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.only(
-          left: 6,
-          top: 5,
-          bottom: 5,
-          right: 4,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: babyWhite,
-        ),
-        height: 70,
-        child: messageLastMessageStream.when(
-          data: (message) {
-            return buildContent(object, context, message);
-          },
-          loading: () => buildContent(object, context, null),
-          error: (e, s) => MyErrorWidget(e: e, s: s),
+    return BorderGradient(
+      child: Material(
+        elevation: animation.value,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.only(
+            left: 6,
+            top: 5,
+            bottom: 5,
+            right: 4,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: black,
+          ),
+          height: 70,
+          child: messageLastMessageStream.when(
+            data: (message) {
+              return buildContent(object, context, message);
+            },
+            loading: () => buildContent(object, context, null),
+            error: (e, s) => MyErrorWidget(e: e, s: s),
+          ),
         ),
       ),
     );

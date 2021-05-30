@@ -59,14 +59,14 @@ class FriendScreen extends HookWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 30,
-                  color: dark,
+                  color: white,
                 ),
               ),
               actions: [
                 IconButton(
                     icon: Icon(
                       CupertinoIcons.phone,
-                      color: dark,
+                      color: white,
                     ),
                     onPressed: () {}),
               ],
@@ -100,9 +100,10 @@ class FriendScreen extends HookWidget {
                 bottom: 0,
                 child: Material(
                   elevation: 10,
+                  color: black,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+                    topLeft: Radius.circular(32),
+                    topRight: Radius.circular(32),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.only(
@@ -118,7 +119,7 @@ class FriendScreen extends HookWidget {
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
                         ),
-                        color: babyWhite,
+                        color: dark,
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -128,7 +129,7 @@ class FriendScreen extends HookWidget {
                             child: CustomTextField(
                               text: 'say something',
                               textEditingController: controllerMessage,
-                              color: babyBlue,
+                              color: black,
                               margin: 10,
                               borderRadius: 20,
                               onSubmitted: (value) async {
@@ -146,11 +147,11 @@ class FriendScreen extends HookWidget {
                             margin: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: blue,
+                              color: blue.withOpacity(0.2),
                             ),
                             child: Icon(
                               CupertinoIcons.photo_camera,
-                              color: babyWhite,
+                              color: blue,
                             ),
                           ),
                           Container(
@@ -159,11 +160,11 @@ class FriendScreen extends HookWidget {
                             margin: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: blue,
+                              color: blue.withOpacity(0.2),
                             ),
                             child: Icon(
                               CupertinoIcons.photo,
-                              color: babyWhite,
+                              color: blue,
                             ),
                           ),
                           GestureDetector(
@@ -187,7 +188,7 @@ class FriendScreen extends HookWidget {
                               ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
-                                color: blue,
+                                color: blue.withOpacity(0.2),
                               ),
                               padding: const EdgeInsets.all(0),
                               child: Transform.translate(
@@ -196,7 +197,7 @@ class FriendScreen extends HookWidget {
                                   angle: pi / 4,
                                   child: Icon(
                                     CupertinoIcons.paperplane,
-                                    color: babyWhite,
+                                    color: blue,
                                   ),
                                 ),
                               ),

@@ -14,7 +14,7 @@ class CustomBackButton extends StatelessWidget {
     return IconButton(
       icon: Icon(
         CupertinoIcons.back,
-        color: dark,
+        color: white,
       ),
       iconSize: 30,
       onPressed: shouldNotJustPop

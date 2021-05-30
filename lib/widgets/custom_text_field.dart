@@ -13,7 +13,7 @@ class CustomTextField extends HookWidget {
     this.onChanged,
     this.onSubmitted,
     this.textEditingController,
-    this.color = babyWhite,
+    this.color = dark,
     this.margin = 20,
     this.borderRadius = 10,
     this.keyboardType = TextInputType.text,
@@ -49,17 +49,21 @@ class CustomTextField extends HookWidget {
                 validator: validator,
                 obscureText: isObscure,
                 keyboardType: keyboardType,
+                style: TextStyle(color: white),
                 decoration: InputDecoration(
                   hintText: text,
+                  hintStyle: TextStyle(color: grey),
                 ),
               )
             : TextField(
                 controller: textEditingController,
                 onChanged: onChanged,
                 onSubmitted: onSubmitted,
+                style: TextStyle(color: white),
                 decoration: InputDecoration(
                   hintText: text,
-                  icon: icon != null ? Icon(icon) : null,
+                  hintStyle: TextStyle(color: grey),
+                  icon: icon != null ? Icon(icon, color: blue) : null,
                 ),
               ),
       ),

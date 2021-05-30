@@ -11,7 +11,7 @@ class LastItemOnProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: index == length - 1 ? 20 : 0),
+      padding: EdgeInsets.only(bottom: index == length - 1 ? 55 : 0),
       child: child,
     );
   }

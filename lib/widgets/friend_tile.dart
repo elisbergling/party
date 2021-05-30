@@ -8,6 +8,8 @@ import 'package:party/providers/state_provider.dart';
 import 'package:party/screens/home/friend_screen.dart';
 import 'package:party/widgets/cached_image.dart';
 
+import 'border_gradient.dart';
+
 class FriendTile extends HookWidget {
   const FriendTile({
     Key key,
@@ -36,30 +38,36 @@ class FriendTile extends HookWidget {
         useState(initValue(invitedUids.state, groupMembersUids.state));
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 7, horizontal: 14),
-      child: Material(
-        elevation: isSelected.value ? 3 : 1,
-        borderRadius: BorderRadius.circular(20),
+      height: 120,
+      child: BorderGradient(
         child: Container(
           key: Key(friend.uid),
-          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: babyWhite,
+            color: isSelected.value
+                ? Colors.transparent
+                : !isForGroup && !isForParty
+                    ? black
+                    : dark,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CachedImage(
-                friend.imgUrl,
-                height: 80,
-                width: 80,
-                name: friend.name,
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: CachedImage(
+                  friend.imgUrl,
+                  height: 80,
+                  width: 80,
+                  name: friend.name,
+                ),
               ),
-              const SizedBox(width: 20),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 20),
                   Text(
                     friend.name,
                     textAlign: TextAlign.center,
@@ -67,7 +75,7 @@ class FriendTile extends HookWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
-                      color: dark,
+                      color: white,
                     ),
                   ),
                   Text(
@@ -82,6 +90,7 @@ class FriendTile extends HookWidget {
                   ),
                   isForParty || isForGroup
                       ? IconButton(
+                          padding: const EdgeInsets.all(0),
                           icon: isSelected.value
                               ? Icon(CupertinoIcons.person_badge_minus)
                               : Icon(CupertinoIcons.person_add),
@@ -123,9 +132,10 @@ class FriendTile extends HookWidget {
                       : Row(
                           children: [
                             IconButton(
+                              padding: const EdgeInsets.all(0),
                               icon: Icon(
                                 CupertinoIcons.bubble_left,
-                                color: dark,
+                                color: white,
                               ),
                               iconSize: 24,
                               onPressed: () {
@@ -136,9 +146,10 @@ class FriendTile extends HookWidget {
                               },
                             ),
                             IconButton(
+                              padding: const EdgeInsets.all(0),
                               icon: Icon(
                                 CupertinoIcons.phone,
-                                color: dark,
+                                color: white,
                               ),
                               iconSize: 24,
                               onPressed: () {},
@@ -147,6 +158,7 @@ class FriendTile extends HookWidget {
                         ),
                 ],
               ),
+              const SizedBox(width: 20)
             ],
           ),
         ),

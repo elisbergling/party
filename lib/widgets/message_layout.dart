@@ -50,13 +50,24 @@ class MessageLayout extends StatelessWidget {
                     isMe ? Radius.circular(0.0) : Radius.circular(10.0),
                 bottomLeft: isMe ? Radius.circular(10.0) : Radius.circular(0.0),
               ),
-              color: isMe ? blue : babyWhite,
+              gradient: LinearGradient(
+                colors: isMe
+                    ? [
+                        blue.withOpacity(0.6),
+                        blue.withOpacity(0.8),
+                      ]
+                    : [dark, dark],
+                tileMode: TileMode.clamp,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              //color: isMe ? blue : dark,
             ),
             child: Text(
               message.message,
               textAlign: TextAlign.start,
               style: TextStyle(
-                color: isMe ? babyWhite : dark,
+                color: isMe ? white : white,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -73,7 +84,7 @@ class MessageLayout extends StatelessWidget {
               time,
               textAlign: isMe ? TextAlign.end : TextAlign.start,
               style: TextStyle(
-                color: dark,
+                color: white,
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),

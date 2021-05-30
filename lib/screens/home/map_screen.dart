@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:hooks_riverpod/all.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/providers/map_provider.dart';
 import 'package:party/providers/party_provider.dart';
@@ -32,12 +32,12 @@ class MapScreen extends HookWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: babyWhite,
+              color: white,
             ),
           ),
           actions: [
             IconButton(
-              icon: Icon(CupertinoIcons.add, color: babyWhite),
+              icon: Icon(CupertinoIcons.add, color: white),
               onPressed: () => Navigator.of(context)
                   .pushReplacementNamed(AddPartyScreen.routeName),
             ),
@@ -58,7 +58,8 @@ class MapScreen extends HookWidget {
                       ? LatLng(parties[0].latitude, parties[0].longitude)
                       : LatLng(24.150, -110.32),
                   zoom: 10),
-              onMapCreated: context.read(mapProvider).onMapCreated,
+              onMapCreated: (controller) =>
+                  context.read(mapProvider).onMapCreated(controller),
               markers: parties
                   .map(
                     (party) => Marker(
@@ -79,11 +80,12 @@ class MapScreen extends HookWidget {
             ),
             Positioned(
               top: MediaQuery.of(context).padding.top +
-                  AppBar().preferredSize.height,
+                  AppBar().preferredSize.height +
+                  10,
               right: 0,
               left: 0,
               child: Container(
-                height: 160,
+                height: 140,
                 child: ListView.builder(
                   physics: BouncingScrollPhysics(),
                   shrinkWrap: true,

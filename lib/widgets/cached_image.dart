@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:party/constants/colors.dart';
+import 'package:party/widgets/temp/my_loading_widget.dart';
 
 class CachedImage extends StatelessWidget {
   final String imageUrl;
@@ -31,18 +32,14 @@ class CachedImage extends StatelessWidget {
           width: width,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: color == null ? Theme.of(context).primaryColorLight : color,
+            color: color == null ? blue : color,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: CachedNetworkImage(
               imageUrl: imageUrl,
               fit: fit,
-              placeholder: (context, url) => Center(
-                child: CircularProgressIndicator(
-                  backgroundColor: Colors.transparent,
-                ),
-              ),
+              placeholder: (context, url) => MyLoadingWidget(),
               errorWidget: (context, url, error) => buildContainer(context),
             ),
           ),
@@ -62,7 +59,19 @@ class CachedImage extends StatelessWidget {
       width: width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: color == null ? babyBlue : color,
+        //color: color == null ? babyBlue : color,
+        gradient: LinearGradient(
+          colors: color == null
+              ? [
+                  blue,
+                  purple,
+                  red,
+                ]
+              : [color, color],
+          tileMode: TileMode.clamp,
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+        ),
       ),
       child: name != null
           ? Center(
@@ -70,7 +79,7 @@ class CachedImage extends StatelessWidget {
                 name.split('')[0],
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: textColor == null ? babyWhite : textColor,
+                  color: textColor == null ? black : textColor,
                   fontWeight: FontWeight.bold,
                   fontSize: height / 2.2,
                 ),

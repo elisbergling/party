@@ -9,15 +9,16 @@ class BackgroundGradient extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [babyWhite, babyBlue],
-          tileMode: TileMode.clamp,
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: [-1, 1],
-        ),
-      ),
+      color: black,
+      // decoration: BoxDecoration(
+      //   gradient: LinearGradient(
+      //     colors: [test1, test1],
+      //     tileMode: TileMode.clamp,
+      //     begin: Alignment.topCenter,
+      //     end: Alignment.bottomCenter,
+      //     //stops: [-1, 1],
+      //   ),
+      // ),
       child: child,
     );
   }

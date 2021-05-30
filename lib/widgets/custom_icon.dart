@@ -9,7 +9,7 @@ class CustomIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       borderRadius: BorderRadius.circular(10),
-      color: babyWhite,
+      color: white,
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         child: Icon(icon),
