@@ -1,105 +1,93 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:party/constants/strings.dart';
 import 'package:party/models/friend.dart';
 import 'package:party/models/location_info.dart';
 import 'package:party/models/party.dart';
+import 'package:party/services/service_notifier.dart';
+import 'package:party/utils/auth_state_mixin.dart';
 import 'package:uuid/uuid.dart';
 
-class PartyService with ChangeNotifier {
-  PartyService({@required this.uid})
-      : assert(uid != null, 'Cannot create PartyService with null uid');
-  final String uid;
-
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
-  String _error = '';
-  String get error => _error;
-  set error(error) => _error = error;
-
+class PartyService extends ServiceNotifier with AuthState {
   final CollectionReference partyCollection =
-      FirebaseFirestore.instance.collection(PARTIES);
+      FirebaseFirestore.instance.collection(MyStrings.parties);
 
   final CollectionReference userCollection =
-      FirebaseFirestore.instance.collection(USERS);
+      FirebaseFirestore.instance.collection(MyStrings.users);
 
-  Stream<List<Party>> partiesStream() {
+  Stream<List<Party>>? partiesStream() {
     try {
       return partyCollection
-          .where(INVITED_UIDS, arrayContains: uid)
+          .where(MyStrings.invitedUids, arrayContains: uid)
           .snapshots()
           .map((event) =>
               event.docs.map((e) => Party.fromJson(e.data())).toList());
     } catch (e) {
-      print(e.toString());
+      setError(e);
       return null;
     }
   }
 
-  Stream<List<Party>> myPartiesStream() {
-    try {
-      return partyCollection.where(HOST_UID, isEqualTo: uid).snapshots().map(
-          (event) => event.docs.map((e) => Party.fromJson(e.data())).toList());
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
-  }
-
-  Stream<List<Party>> upcomingPartiesStream() {
+  Stream<List<Party>>? myPartiesStream() {
     try {
       return partyCollection
-          .where(COMING_UIDS, arrayContains: uid)
+          .where(MyStrings.hostUid, isEqualTo: uid)
           .snapshots()
           .map((event) =>
               event.docs.map((e) => Party.fromJson(e.data())).toList());
     } catch (e) {
-      print(e.toString());
+      setError(e);
       return null;
     }
   }
 
-  Stream<List<Friend>> comingStream({Party party}) {
+  Stream<List<Party>>? upcomingPartiesStream() {
     try {
-      List<String> list =
-          party.comingUids.isNotEmpty ? party?.comingUids : [''];
-      return userCollection.where(UID, whereIn: list).snapshots().map(
+      return partyCollection
+          .where(MyStrings.comingUids, arrayContains: uid)
+          .snapshots()
+          .map((event) =>
+              event.docs.map((e) => Party.fromJson(e.data())).toList());
+    } catch (e) {
+      setError(e);
+      return null;
+    }
+  }
+
+  Stream<List<Friend>>? comingStream({required Party party}) {
+    try {
+      List<String> list = party.comingUids.isNotEmpty ? party.comingUids : [''];
+      return userCollection.where(MyStrings.uid, whereIn: list).snapshots().map(
           (event) => event.docs.map((e) => Friend.fromJson(e.data())).toList());
     } catch (e) {
-      print(e.toString());
+      setError(e);
       return null;
     }
   }
 
-  Future<Party> fetchParty({String id}) async {
+  Future<Party?> fetchParty({required String id}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       DocumentSnapshot documentSnapshot = await partyCollection.doc(id).get();
       return Party.fromJson(documentSnapshot.data());
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
       return null;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
   Future<void> addParty({
-    String name,
-    String about,
-    int price,
-    String imgUrl,
-    Timestamp time,
-    List<String> invitedUids,
-    LocationInfo locationInfo,
+    required String? name,
+    required String? about,
+    required int? price,
+    required String? imgUrl,
+    required Timestamp? time,
+    required List<String>? invitedUids,
+    required LocationInfo? locationInfo,
   }) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       if (name == null ||
           about == null ||
           price == null ||
@@ -109,9 +97,9 @@ class PartyService with ChangeNotifier {
           name.trim() == '' ||
           about.trim() == '' ||
           price.toString().trim() == '') {
-        _error = 'No Field can be empty';
+        setError('No Field can be empty');
       } else {
-        Uuid uuid = Uuid();
+        Uuid uuid = const Uuid();
         DocumentSnapshot documentSnapshot = await userCollection.doc(uid).get();
         Party party = Party(
           id: uuid.v4(),
@@ -133,83 +121,63 @@ class PartyService with ChangeNotifier {
         await partyCollection.doc(party.id).set(party.toJson());
       }
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
-  Future<void> removeParty({String id}) async {
+  Future<void> removeParty({required String id}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       await partyCollection.doc(id).delete();
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
-  Future<void> joinOrUnjoinParty({Party party}) async {
+  Future<void> joinOrUnjoinParty({required Party party}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       if (party.comingUids.contains(uid)) {
         //await unjoinParty(id: party.id);
-        _error = 'You Have alredy joined this party';
-        notifyListeners();
+        setError('You Have alredy joined this party');
       } else {
         await joinParty(id: party.id);
       }
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
-  Future<void> joinParty({String id}) async {
+  Future<void> joinParty({required String id}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       await partyCollection.doc(id).update({
-        COMING_UIDS: FieldValue.arrayUnion([uid])
+        MyStrings.comingUids: FieldValue.arrayUnion([uid])
       });
     } catch (e) {
-      _isLoading = false;
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      toggleLoading();
+      setError(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
-  Future<void> unjoinParty({String id}) async {
+  Future<void> unjoinParty({required String id}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       await partyCollection.doc(id).update({
-        COMING_UIDS: FieldValue.arrayRemove([uid])
+        MyStrings.comingUids: FieldValue.arrayRemove([uid])
       });
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 }

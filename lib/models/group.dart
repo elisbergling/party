@@ -10,12 +10,13 @@ class Group {
   List<String> membersUids;
 
   Group({
-    this.id,
-    this.name,
-    this.imgUrl,
-    this.membersUids,
+    required this.id,
+    required this.name,
+    required this.imgUrl,
+    required this.membersUids,
   });
 
-  factory Group.fromJson(Map<String, dynamic> json) => _$GroupFromJson(json);
+  factory Group.fromJson(Object? doc) =>
+      _$GroupFromJson(doc as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$GroupToJson(this);
 }

@@ -1,8 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
@@ -14,30 +11,30 @@ import 'package:party/widgets/party_tile.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
 
-class MapScreen extends HookWidget {
-  const MapScreen({Key key}) : super(key: key);
+class MapScreen extends HookConsumerWidget {
+  const MapScreen({super.key});
 
   static const routeName = '/map';
 
   @override
-  Widget build(BuildContext context) {
-    final partyPartiesStream = useProvider(partyPartiesStreamProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final partyPartiesStream = ref.watch(partyPartiesStreamProvider);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: GlassAppBar(
         child: AppBar(
           backgroundColor: Colors.black.withOpacity(0.2),
-          title: Text(
+          title: const Text(
             'Parties',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: white,
+              color: MyColors.white,
             ),
           ),
           actions: [
             IconButton(
-              icon: Icon(CupertinoIcons.add, color: white),
+              icon: const Icon(CupertinoIcons.add, color: MyColors.white),
               onPressed: () => Navigator.of(context)
                   .pushReplacementNamed(AddPartyScreen.routeName),
             ),
@@ -56,17 +53,17 @@ class MapScreen extends HookWidget {
               initialCameraPosition: CameraPosition(
                   target: parties[0].latitude != null
                       ? LatLng(parties[0].latitude, parties[0].longitude)
-                      : LatLng(24.150, -110.32),
+                      : const LatLng(24.150, -110.32),
                   zoom: 10),
               onMapCreated: (controller) =>
-                  context.read(mapProvider).onMapCreated(controller),
+                  ref.read(mapProvider).onMapCreated(controller),
               markers: parties
                   .map(
                     (party) => Marker(
                       markerId: MarkerId(party.id),
                       position: party.latitude != null
                           ? LatLng(party.latitude, party.longitude)
-                          : LatLng(24.150, -110.32),
+                          : const LatLng(24.150, -110.32),
                       icon: BitmapDescriptor.defaultMarkerWithHue(
                         BitmapDescriptor.hueCyan,
                       ),
@@ -84,10 +81,10 @@ class MapScreen extends HookWidget {
                   10,
               right: 0,
               left: 0,
-              child: Container(
+              child: SizedBox(
                 height: 140,
                 child: ListView.builder(
-                  physics: BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: parties.length,
                   scrollDirection: Axis.horizontal,
@@ -100,7 +97,7 @@ class MapScreen extends HookWidget {
             ),
           ],
         ),
-        loading: () => MyLoadingWidget(),
+        loading: () => const MyLoadingWidget(),
         error: (e, s) => MyErrorWidget(e: e, s: s),
       ),
     );

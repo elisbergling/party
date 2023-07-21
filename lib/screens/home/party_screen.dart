@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
@@ -20,41 +18,38 @@ import 'package:party/widgets/map_dialog.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
 
-class PartyScreen extends HookWidget {
-  const PartyScreen({
-    Key key,
-  }) : super(key: key);
+class PartyScreen extends HookConsumerWidget {
+  const PartyScreen({super.key});
 
   static const routeName = '/party';
 
   @override
-  Widget build(BuildContext context) {
-    final uid = useProvider(authProvider).auth.currentUser.uid;
-    final party = useProvider(partyProvider);
-    final partyData = useProvider(partyDataProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final uid = ref.watch(authProvider).auth.currentUser.uid;
+    final party = ref.watch(partyProvider);
+    final partyData = ref.watch(partyDataProvider);
     LatLng coords;
-    partyData.state.latitude == null
-        ? coords = LatLng(24.150, -110.32)
-        : coords = LatLng(partyData.state.latitude, partyData.state.longitude);
-    final partyComingStream =
-        useProvider(partyComingStreamProvider(partyData.state));
+    partyData == null
+        ? coords = const LatLng(24.150, -110.32)
+        : coords = LatLng(partyData.latitude, partyData.longitude);
+    final partyComingStream = ref.watch(partyComingStreamProvider(partyData));
     return BackgroundGradient(
       child: Scaffold(
         appBar: AppBar(
-          leading: CustomBackButton(
+          leading: const CustomBackButton(
             shouldNotJustPop: true,
           ),
           title: Text(
-            partyData.state.name,
-            style: TextStyle(
+            partyData.name,
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: white,
+              color: MyColors.white,
             ),
           ),
         ),
         body: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
               Container(
@@ -68,15 +63,15 @@ class PartyScreen extends HookWidget {
                       right: 20,
                     ),
                     decoration: BoxDecoration(
-                      color: black,
+                      color: MyColors.black,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Column(
                       children: [
                         const SizedBox(height: 35),
                         CachedImage(
-                          partyData.state.imgUrl,
-                          name: partyData.state.name,
+                          partyData.imgUrl,
+                          name: partyData.name,
                           height: 250,
                           width: 250,
                         ),
@@ -87,17 +82,18 @@ class PartyScreen extends HookWidget {
                             children: [
                               Text(
                                 formatTimestamp(
-                                    timestamp: partyData.state.time),
-                                style: TextStyle(
-                                  color: white,
+                                  timestamp: partyData.time,
+                                ),
+                                style: const TextStyle(
+                                  color: MyColors.white,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
                               Text(
-                                '   ${partyData.state.price.toString()} kr',
-                                style: TextStyle(
-                                  color: purple,
+                                '   ${partyData.price.toString()} kr',
+                                style: const TextStyle(
+                                  color: MyColors.purple,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -108,18 +104,18 @@ class PartyScreen extends HookWidget {
                         Padding(
                           padding: const EdgeInsets.all(10),
                           child: Text(
-                            partyData.state.about,
-                            style: TextStyle(
-                              color: grey,
+                            partyData.about,
+                            style: const TextStyle(
+                              color: MyColors.grey,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
                           child: Divider(
-                            color: grey,
+                            color: MyColors.grey,
                             height: 1,
                           ),
                         ),
@@ -129,10 +125,10 @@ class PartyScreen extends HookWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Text(
-                                partyData.state.address == null
+                                partyData.address == null
                                     ? 'adress'
-                                    : partyData.state.address.split(',')[0],
-                                style: TextStyle(color: grey),
+                                    : partyData.address.split(',')[0],
+                                style: const TextStyle(color: grey),
                               ),
                               CustomButton(
                                 text: 'View on Map',
@@ -140,7 +136,7 @@ class PartyScreen extends HookWidget {
                                   context: context,
                                   builder: (context) => MapDialog(
                                     shouldAdd: false,
-                                    adress: partyData.state.address ?? 'adress',
+                                    adress: partyData.address ?? 'adress',
                                     coords: coords,
                                   ),
                                 ),
@@ -167,22 +163,22 @@ class PartyScreen extends HookWidget {
                 data: (coming) {
                   if (coming.length == 0) {
                     return Column(children: [
-                      Text(
+                      const Text(
                         'No one is coming yet',
-                        style: TextStyle(color: white),
+                        style: TextStyle(color: MyColors.white),
                       ),
                       const SizedBox(height: 10),
                       !party.isLoading
                           ? buildCustomButton(context, partyData, party)
-                          : MyLoadingWidget(),
+                          : const MyLoadingWidget(),
                     ]);
                   } else {
                     return Column(
                       children: [
-                        Text(
+                        const Text(
                           'Coming:',
                           style: TextStyle(
-                            color: white,
+                            color: MyColors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                           ),
@@ -192,7 +188,7 @@ class PartyScreen extends HookWidget {
                           height: 80,
                           child: ListView.builder(
                             cacheExtent: 10000,
-                            physics: BouncingScrollPhysics(),
+                            physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.horizontal,
                             itemCount: coming.length,
                             itemBuilder: (context, index) => Container(
@@ -211,18 +207,14 @@ class PartyScreen extends HookWidget {
                         !coming.any((element) => element.uid == uid)
                             ? buildCustomButton(context, partyData, party)
                             : party.isLoading
-                                ? MyLoadingWidget()
+                                ? const MyLoadingWidget()
                                 : Container(),
                       ],
                     );
                   }
                 },
-                loading: () => MyLoadingWidget(),
-                error: (e, s) {
-                  print('error: ' + e);
-                  print('stackTrace: ' + s.toString());
-                  return MyErrorWidget(e: e, s: s);
-                },
+                loading: () => const MyLoadingWidget(),
+                error: (e, s) => MyErrorWidget(e: e, s: s),
               ),
 
               //const SizedBox(height: 20),

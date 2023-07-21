@@ -1,11 +1,11 @@
 enum MessageType {
-  Friends,
-  Groups,
-  Parties,
+  friends,
+  groups,
+  parties,
 }
 
 enum ProfileStreamType {
-  Friends,
-  YourParties,
-  UpcomingParties,
+  friends,
+  yourParties,
+  upcomingParties,
 }

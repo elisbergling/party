@@ -3,23 +3,26 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const GlassAppBar({Key key, this.child}) : super(key: key);
+  const GlassAppBar({
+    super.key,
+    required this.child,
+  });
 
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return PreferredSize(
+      preferredSize: const Size(double.infinity, 56.0),
       child: ClipRRect(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
           child: child,
         ),
       ),
-      preferredSize: Size(double.infinity, 56.0),
     );
   }
 
   @override
-  Size get preferredSize => Size(double.infinity, 56.0);
+  Size get preferredSize => const Size(double.infinity, 56.0);
 }

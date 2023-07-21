@@ -13,9 +13,8 @@ Friend _$FriendFromJson(Map<String, dynamic> json) {
     username: json['username'] as String,
     email: json['email'] as String,
     imgUrl: json['imgUrl'] as String,
-    friendUids: (json['friendUids'] as List)?.map((e) => e as String)?.toList(),
-    requestUids:
-        (json['requestUids'] as List)?.map((e) => e as String)?.toList(),
+    friendUids: (json['friendUids'] as List).map((e) => e as String).toList(),
+    requestUids: (json['requestUids'] as List).map((e) => e as String).toList(),
   );
 }
 

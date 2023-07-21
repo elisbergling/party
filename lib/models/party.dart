@@ -22,23 +22,24 @@ class Party {
   String postalCode;
 
   Party({
-    this.id,
-    this.name,
-    this.about,
-    this.price,
-    this.imgUrl,
-    this.time,
-    this.hostName,
-    this.hostUid,
-    this.comingUids,
-    this.invitedUids,
-    this.latitude,
-    this.longitude,
-    this.address,
-    this.country,
-    this.postalCode,
+    required this.id,
+    required this.name,
+    required this.about,
+    required this.price,
+    required this.imgUrl,
+    required this.time,
+    required this.hostName,
+    required this.hostUid,
+    required this.comingUids,
+    required this.invitedUids,
+    required this.latitude,
+    required this.longitude,
+    required this.address,
+    required this.country,
+    required this.postalCode,
   });
 
-  factory Party.fromJson(Map<String, dynamic> json) => _$PartyFromJson(json);
+  factory Party.fromJson(Object? doc) =>
+      _$PartyFromJson(doc as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$PartyToJson(this);
 }

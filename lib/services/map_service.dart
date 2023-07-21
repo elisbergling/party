@@ -56,12 +56,12 @@ class MapService with ChangeNotifier {
 
   void addMarker(double lat, double long) {
     MarkerId markerId = MarkerId(lat.toString() + long.toString());
-    Marker _marker = Marker(
+    Marker marker = Marker(
       markerId: markerId,
       position: LatLng(lat, long),
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
     );
-    this._marker = _marker;
+    _marker = marker;
     notifyListeners();
   }
 }

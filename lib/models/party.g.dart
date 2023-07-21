@@ -16,9 +16,8 @@ Party _$PartyFromJson(Map<String, dynamic> json) {
     time: json['time'] as Timestamp,
     hostName: json['hostName'] as String,
     hostUid: json['hostUid'] as String,
-    comingUids: (json['comingUids'] as List)?.map((e) => e as String)?.toList(),
-    invitedUids:
-        (json['invitedUids'] as List)?.map((e) => e as String)?.toList(),
+    comingUids: (json['comingUids'] as List).map((e) => e as String).toList(),
+    invitedUids: (json['invitedUids'] as List).map((e) => e as String).toList(),
     latitude: json['latitude'] as double,
     longitude: json['longitude'] as double,
     address: json['address'] as String,

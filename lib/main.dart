@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/providers/auth_provider.dart';
@@ -26,27 +25,41 @@ import 'package:party/screens/temp/loading_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    systemNavigationBarColor: black, // navigation bar color
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: MyColors.black, // navigation bar color
   ));
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   await Firebase.initializeApp();
-  runApp(ProviderScope(child: MyApp()));
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends HookWidget {
+class MyApp extends HookConsumerWidget {
+  const MyApp({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    final authStateChanges = useProvider(authStateChangesProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authStateChanges = ref.watch(authStateChangesProvider);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Party',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        accentColor: blue,
         scaffoldBackgroundColor: Colors.transparent,
-        appBarTheme: AppBarTheme(
+        //colorScheme: ColorScheme(
+        //  brightness: brightness,
+        //  primary: primary,
+        //  onPrimary: onPrimary,
+        //  secondary: MyColors.blue,
+        //  onSecondary: onSecondary,
+        //  error: error,
+        //  onError: onError,
+        //  background: background,
+        //  onBackground: onBackground,
+        //  surface: surface,
+        //  onSurface: onSurface,
+        //),
+        appBarTheme: const AppBarTheme(
           elevation: 0,
           backgroundColor: Colors.transparent,
           titleTextStyle: TextStyle(
@@ -54,9 +67,10 @@ class MyApp extends HookWidget {
             fontSize: 30,
           ),
         ),
-        textSelectionTheme: TextSelectionThemeData(cursorColor: blue),
-        iconTheme: IconThemeData(color: white),
-        inputDecorationTheme: InputDecorationTheme(
+        textSelectionTheme:
+            const TextSelectionThemeData(cursorColor: MyColors.blue),
+        iconTheme: const IconThemeData(color: MyColors.white),
+        inputDecorationTheme: const InputDecorationTheme(
           border: InputBorder.none,
           focusedBorder: InputBorder.none,
           enabledBorder: InputBorder.none,
@@ -67,42 +81,44 @@ class MyApp extends HookWidget {
         ),
       ),
       routes: {
-        UserScreen.routeName: (context) => UserScreen(),
-        MapScreen.routeName: (context) => MapScreen(),
-        MessageScreen.routeName: (context) => MessageScreen(),
-        SettingsScreen.routeName: (context) => SettingsScreen(),
-        FriendScreen.routeName: (context) => FriendScreen(),
-        AddFriendScreen.routeName: (context) => AddFriendScreen(),
-        AddGroupScreen.routeName: (context) => AddGroupScreen(),
-        AddPartyScreen.routeName: (context) => AddPartyScreen(),
-        PartyScreen.routeName: (context) => PartyScreen(),
-        MyHomePage.routeName: (context) => MyHomePage(),
+        UserScreen.routeName: (context) => const UserScreen(),
+        MapScreen.routeName: (context) => const MapScreen(),
+        MessageScreen.routeName: (context) => const MessageScreen(),
+        SettingsScreen.routeName: (context) => const SettingsScreen(),
+        FriendScreen.routeName: (context) => const FriendScreen(),
+        AddFriendScreen.routeName: (context) => const AddFriendScreen(),
+        AddGroupScreen.routeName: (context) => const AddGroupScreen(),
+        AddPartyScreen.routeName: (context) => const AddPartyScreen(),
+        PartyScreen.routeName: (context) => const PartyScreen(),
+        MyHomePage.routeName: (context) => const MyHomePage(),
       },
       home: authStateChanges.when(
-        data: (user) => user != null ? MyHomePage() : AuthScreen(),
-        loading: () => LoadingScreen(),
+        data: (user) => user != null ? const MyHomePage() : const AuthScreen(),
+        loading: () => const LoadingScreen(),
         error: (e, s) => ErrorScreen(e: e, s: s),
       ),
     );
   }
 }
 
-class MyHomePage extends HookWidget {
+class MyHomePage extends HookConsumerWidget {
   static const routeName = '/my-home-page';
+
+  const MyHomePage({super.key});
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     const List<Widget> pages = [
       ProfileScreen(),
       MessagesScreen(),
       MapScreen(),
       SettingsScreen(),
     ];
-    final pageIndex = useProvider(pageIndexProvider);
+    final pageIndex = ref.watch(pageIndexProvider);
     return Scaffold(
-      backgroundColor: black,
+      backgroundColor: MyColors.black,
       extendBody: true,
       bottomNavigationBar: ClipRRect(
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(15),
           topRight: Radius.circular(15),
         ),
@@ -110,18 +126,18 @@ class MyHomePage extends HookWidget {
           filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
           child: BottomNavigationBar(
             onTap: (i) {
-              context.read(pageIndexProvider).state = i;
+              ref.read(pageIndexProvider.notifier).state = i;
             },
-            currentIndex: pageIndex.state,
-            selectedItemColor: blue,
-            unselectedItemColor: grey,
+            currentIndex: pageIndex,
+            selectedItemColor: MyColors.blue,
+            unselectedItemColor: MyColors.grey,
             showSelectedLabels: false,
             showUnselectedLabels: false,
             iconSize: 28,
             backgroundColor: Colors.transparent,
             elevation: 0,
             type: BottomNavigationBarType.fixed,
-            items: [
+            items: const [
               BottomNavigationBarItem(
                 icon: Icon(CupertinoIcons.person),
                 label: 'profile',
@@ -143,7 +159,7 @@ class MyHomePage extends HookWidget {
         ),
       ),
       body: Center(
-        child: pages.elementAt(pageIndex.state),
+        child: pages.elementAt(pageIndex),
       ),
     );
   }

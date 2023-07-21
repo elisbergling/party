@@ -1,32 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/enum.dart';
 import 'package:party/constants/strings.dart';
 import 'package:party/models/message.dart';
+import 'package:party/providers/state_provider.dart';
+import 'package:party/services/service_notifier.dart';
+import 'package:party/utils/auth_state_mixin.dart';
 import 'package:uuid/uuid.dart';
 
-class MessageService with ChangeNotifier {
-  MessageService({
-    @required this.uid,
-    @required this.messageType,
-  }) : assert(uid != null, 'Cannot create FriendService with null uid');
-  final String uid;
-  final MessageType messageType;
-
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
-  String _error = '';
-  String get error => _error;
+class MessageService extends ServiceNotifier with AuthState {
+  MessageType get messageType {
+    return ProviderContainer().read(messageTypeProvider);
+  }
 
   final CollectionReference messageCollection =
-      FirebaseFirestore.instance.collection(MESSEGES);
+      FirebaseFirestore.instance.collection(MyStrings.messages);
 
-  String chatRoomIdGenerator(
-    String uidTo,
-  ) {
-    String chatRoomId;
+  String chatRoomIdGenerator(String uidTo) {
+    String chatRoomId = '';
     switch (messageType) {
-      case MessageType.Friends:
+      case MessageType.friends:
         if (uid.hashCode < uidTo.hashCode) {
           chatRoomId = uid + uidTo;
         } else if (uidTo.hashCode < uid.hashCode) {
@@ -37,39 +30,39 @@ class MessageService with ChangeNotifier {
           chatRoomId = uidTo.hashCode.toString() + uid.hashCode.toString();
         }
         break;
-      case MessageType.Groups:
+      case MessageType.groups:
         chatRoomId = uidTo;
         break;
-      case MessageType.Parties:
+      case MessageType.parties:
         chatRoomId = uidTo;
         break;
     }
     return chatRoomId;
   }
 
-  Stream<List<Message>> messagesStream({String uidTo}) {
+  Stream<List<Message>>? messagesStream({required String uidTo}) {
     try {
       String chatRoomId = chatRoomIdGenerator(uidTo);
       return messageCollection
           .doc(chatRoomId)
-          .collection(MESSEGES)
-          .orderBy(CREATED_AT, descending: true)
+          .collection(MyStrings.messages)
+          .orderBy(MyStrings.createdAt, descending: true)
           .snapshots()
           .map((event) =>
               event.docs.map((e) => Message.fromJson(e.data())).toList());
     } catch (e) {
-      print(e.toString());
+      setError(e);
       return null;
     }
   }
 
-  Stream<Message> lastMessageStream({String uidTo}) {
+  Stream<Message>? lastMessageStream({required String uidTo}) {
     try {
       String chatRoomId = chatRoomIdGenerator(uidTo);
       return messageCollection
           .doc(chatRoomId)
-          .collection(MESSEGES)
-          .orderBy(CREATED_AT, descending: true)
+          .collection(MyStrings.messages)
+          .orderBy(MyStrings.createdAt, descending: true)
           .limit(1)
           .snapshots()
           .map((event) => event.docs.isNotEmpty
@@ -79,56 +72,54 @@ class MessageService with ChangeNotifier {
                   createdAt: Timestamp.fromMicrosecondsSinceEpoch(0),
                 ));
     } catch (e) {
-      print(e.toString());
+      setError(e);
       return null;
     }
   }
 
-  Future<Message> lastMessageFuture({String uidTo}) async {
+  Future<Message?> lastMessageFuture({required String uidTo}) async {
     try {
       String chatRoomId = chatRoomIdGenerator(uidTo);
       final doc = await messageCollection
           .doc(chatRoomId)
-          .collection(MESSEGES)
-          .orderBy(CREATED_AT, descending: true)
+          .collection(MyStrings.messages)
+          .orderBy(MyStrings.createdAt, descending: true)
           .limit(1)
           .get();
 
       return doc.docs.map((e) => Message.fromJson(e.data())).single;
     } catch (e) {
-      print(e.toString());
+      setError(e);
       return null;
     }
   }
 
   Future<void> removeMessage({
-    String uidTo,
-    String id,
+    required String uidTo,
+    required String id,
   }) async {
     try {
       String chatRoomId = chatRoomIdGenerator(uidTo);
       await messageCollection
           .doc(chatRoomId)
-          .collection(MESSEGES)
+          .collection(MyStrings.messages)
           .doc(id)
           .delete();
     } catch (e) {
-      print(e.toString());
-
-      return null;
+      setError(e);
     }
   }
 
   Future<void> addMessage({
-    String message,
-    String uidTo,
+    required String? message,
+    required String uidTo,
   }) async {
     try {
       if (message == null || message.trim() == '') {
         return;
       } else {
         String chatRoomId = chatRoomIdGenerator(uidTo);
-        Uuid uuid = Uuid();
+        Uuid uuid = const Uuid();
         Message data = Message(
           createdAt: Timestamp.now(),
           uidFrom: uid,
@@ -138,13 +129,12 @@ class MessageService with ChangeNotifier {
         );
         await messageCollection
             .doc(chatRoomId)
-            .collection(MESSEGES)
+            .collection(MyStrings.messages)
             .doc(data.id)
             .set(data.toJson());
       }
     } catch (e) {
-      print(e.toString());
-      return null;
+      setError(e);
     }
   }
 }

@@ -3,7 +3,7 @@ import 'package:party/constants/colors.dart';
 import 'package:party/widgets/background_gradient.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({Key key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   static const routeName = '/settings';
 
@@ -12,18 +12,18 @@ class SettingsScreen extends StatelessWidget {
     return BackgroundGradient(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             'Settings',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: white,
+              color: MyColors.white,
             ),
           ),
         ),
-        body: Center(
+        body: const Center(
           child: CircularProgressIndicator(
-            color: blue,
+            color: MyColors.blue,
           ),
         ),
       ),

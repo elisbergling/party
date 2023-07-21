@@ -5,22 +5,20 @@ import 'package:image_picker/image_picker.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/providers/image_provider.dart';
 import 'package:party/providers/user_provider.dart';
-import 'package:party/services/image_service.dart';
-import 'package:party/services/user_service.dart';
 import 'package:party/widgets/cached_image.dart';
 import 'package:party/widgets/custom_button.dart';
 import 'package:party/widgets/custom_close_button.dart';
 import 'package:party/widgets/custom_text_field.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
 
-class UpdateUserInfoScreen extends HookWidget {
+class UpdateUserInfoScreen extends HookConsumerWidget {
   const UpdateUserInfoScreen({
-    Key key,
-    this.name,
-    this.username,
-    this.imgUrl,
-    this.uid,
-  }) : super(key: key);
+    super.key,
+    required this.name,
+    required this.username,
+    required this.imgUrl,
+    required this.uid,
+  });
 
   final String name;
   final String username;
@@ -29,19 +27,20 @@ class UpdateUserInfoScreen extends HookWidget {
 
   void selectImage(
     BuildContext context,
-    ImageService image,
-    UserService user,
     ImageSource source,
+    WidgetRef ref,
   ) async {
-    await context.read(imageProvider).uploadFile(
+    await ref.read(imageProvider.notifier).uploadFile(
           uid,
           source,
         );
-    await context.read(userProvider).updateImgUrl(uid: uid);
+    await ref.read(userProvider.notifier).updateImgUrl(uid: uid);
+    final image = ref.watch(imageProvider);
+    final user = ref.watch(userProvider);
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
         content: Text(image.error.isNotEmpty || user.error.isNotEmpty
             ? image.error + user.error
             : 'Nothing went Wrong I guess'),
@@ -50,22 +49,22 @@ class UpdateUserInfoScreen extends HookWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final controllerName = useTextEditingController(text: name);
     final controllerUsername = useTextEditingController(text: username);
-    final image = useProvider(imageProvider);
-    final user = useProvider(userProvider);
-    return Container(
+    final image = ref.watch(imageProvider);
+    final user = ref.watch(userProvider);
+    return SizedBox(
       height: 600,
       child: Scaffold(
         appBar: AppBar(
-          leading: CustomCloseButton(),
-          title: Text(
+          leading: const CustomCloseButton(),
+          title: const Text(
             'Update Your Data',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: white,
+              color: MyColors.white,
             ),
           ),
         ),
@@ -76,24 +75,27 @@ class UpdateUserInfoScreen extends HookWidget {
               GestureDetector(
                 onTap: () => showModalBottomSheet(
                   context: context,
-                  backgroundColor: dark,
+                  backgroundColor: MyColors.dark,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  builder: (context) => Container(
+                  builder: (context) => SizedBox(
                     height: 70,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         CustomButton(
                           text: 'image from library',
-                          onTap: () => selectImage(
-                              context, image, user, ImageSource.gallery),
+                          onTap: () =>
+                              selectImage(context, ImageSource.gallery, ref),
                         ),
                         CustomButton(
                           text: 'image from camera',
                           onTap: () => selectImage(
-                              context, image, user, ImageSource.camera),
+                            context,
+                            ImageSource.camera,
+                            ref,
+                          ),
                         ),
                       ],
                     ),
@@ -106,15 +108,17 @@ class UpdateUserInfoScreen extends HookWidget {
                         width: 100,
                         name: name,
                       )
-                    : MyLoadingWidget(),
+                    : const MyLoadingWidget(),
               ),
               const SizedBox(height: 25),
               CustomTextField(
                 text: 'name',
-                color: black,
+                color: MyColors.black,
                 textEditingController: controllerName,
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value == null) {
+                    return 'Well, you have to enter a name';
+                  } else if (value.isEmpty) {
                     return 'Well, you have to enter a name';
                   }
                   return null;
@@ -122,10 +126,12 @@ class UpdateUserInfoScreen extends HookWidget {
               ),
               CustomTextField(
                 text: 'username',
-                color: black,
+                color: MyColors.black,
                 textEditingController: controllerUsername,
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value == null) {
+                    return 'Username can not be empty!';
+                  } else if (value.isEmpty) {
                     return 'Username can not be empty!';
                   } else if (value.contains('\$') ||
                       value.contains('-') ||
@@ -138,7 +144,7 @@ class UpdateUserInfoScreen extends HookWidget {
               ),
               CustomButton(
                 onTap: () async {
-                  String error;
+                  String? error;
                   if (controllerUsername.text.isEmpty) {
                     error = 'Username can not be empty!';
                   } else if (controllerUsername.text.contains('\$') ||
@@ -153,14 +159,14 @@ class UpdateUserInfoScreen extends HookWidget {
                   if (error != null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        duration: Duration(seconds: 2),
+                        duration: const Duration(seconds: 2),
                         content: Text(error),
                       ),
                     );
                     return;
                   }
 
-                  await context.read(userProvider).updateUser(
+                  await ref.read(userProvider.notifier).updateUser(
                         name: controllerName.text,
                         username: controllerUsername.text,
                       );

@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
@@ -15,60 +13,57 @@ import 'package:party/widgets/custom_button.dart';
 import 'package:party/widgets/list_item.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
+import 'package:party/screens/home/add_group_screen.dart';
 
-import 'add_group_screen.dart';
-
-class MessagesScreen extends HookWidget {
-  const MessagesScreen({
-    Key key,
-  }) : super(key: key);
+class MessagesScreen extends HookConsumerWidget {
+  const MessagesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final friendFriendsStream = useProvider(friendFriendsStreamProvider);
-    final groupGroupsStream = useProvider(groupGroupsStreamProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final friendFriendsStream = ref.watch(friendFriendsStreamProvider);
+    final groupGroupsStream = ref.watch(groupGroupsStreamProvider);
     final partyUpcomingPartiesStream =
-        useProvider(partyUpcomingPartiesStreamProvider);
-    final messageType = useProvider(messageTypeProvider);
+        ref.watch(partyUpcomingPartiesStreamProvider);
+    final messageType = ref.watch(messageTypeProvider);
     return BackgroundGradient(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             'Messages',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: white,
+              color: MyColors.white,
             ),
           ),
           actions: [
             IconButton(
-              icon: FaIcon(
+              icon: const FaIcon(
                 FontAwesomeIcons.userAlt,
-                color: white,
+                color: MyColors.white,
               ),
               onPressed: () => showModalBottomSheet(
                 context: context,
-                backgroundColor: dark,
+                backgroundColor: MyColors.dark,
                 isScrollControlled: true,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                builder: (context) => AddFriendScreen(),
+                builder: (context) => const AddFriendScreen(),
               ),
             ),
             IconButton(
-              icon: FaIcon(
+              icon: const FaIcon(
                 FontAwesomeIcons.users,
-                color: white,
+                color: MyColors.white,
               ),
               onPressed: () => showModalBottomSheet(
                 context: context,
-                backgroundColor: dark,
+                backgroundColor: MyColors.dark,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(50),
                 ),
-                builder: (context) => AddGroupScreen(),
+                builder: (context) => const AddGroupScreen(),
               ),
             ),
           ],
@@ -80,24 +75,24 @@ class MessagesScreen extends HookWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CustomButton(
-                  onTap: () => context.read(messageTypeProvider).state =
-                      MessageType.Friends,
+                  onTap: () => ref.read(messageTypeProvider.notifier).state =
+                      MessageType.friends,
                   text: 'Friends',
                 ),
                 CustomButton(
-                  onTap: () => context.read(messageTypeProvider).state =
-                      MessageType.Groups,
+                  onTap: () => ref.read(messageTypeProvider.notifier).state =
+                      MessageType.groups,
                   text: 'Groups',
                 ),
                 CustomButton(
-                  onTap: () => context.read(messageTypeProvider).state =
-                      MessageType.Parties,
+                  onTap: () => ref.read(messageTypeProvider.notifier).state =
+                      MessageType.parties,
                   text: 'Parties',
                 ),
               ],
             ),
             Expanded(
-              child: messageType.state == MessageType.Friends
+              child: messageType == MessageType.friends
                   ? friendFriendsStream.when(
                       data: (friends) => ListView.builder(
                         padding: const EdgeInsets.only(top: 20),
@@ -106,10 +101,10 @@ class MessagesScreen extends HookWidget {
                         itemBuilder: (ctx, index) =>
                             ListItem(friend: friends[index]),
                       ),
-                      loading: () => MyLoadingWidget(),
+                      loading: () => const MyLoadingWidget(),
                       error: (e, s) => MyErrorWidget(e: e, s: s),
                     )
-                  : messageType.state == MessageType.Groups
+                  : messageType == MessageType.groups
                       ? groupGroupsStream.when(
                           data: (groups) => ListView.builder(
                             padding: const EdgeInsets.only(top: 20),
@@ -118,7 +113,7 @@ class MessagesScreen extends HookWidget {
                             itemBuilder: (ctx, index) =>
                                 ListItem(group: groups[index]),
                           ),
-                          loading: () => MyLoadingWidget(),
+                          loading: () => const MyLoadingWidget(),
                           error: (e, s) => MyErrorWidget(e: e, s: s),
                         )
                       : partyUpcomingPartiesStream.when(
@@ -129,7 +124,7 @@ class MessagesScreen extends HookWidget {
                             itemBuilder: (ctx, index) =>
                                 ListItem(party: parties[index]),
                           ),
-                          loading: () => MyLoadingWidget(),
+                          loading: () => const MyLoadingWidget(),
                           error: (e, s) => MyErrorWidget(e: e, s: s),
                         ),
             ),

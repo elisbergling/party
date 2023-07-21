@@ -3,10 +3,10 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'package:flutter/material.dart';
 
 void showActionDialog({
-  String title,
-  String message,
-  BuildContext ctx,
-  dynamic service,
+  required String title,
+  required String message,
+  required BuildContext ctx,
+  required dynamic service,
 }) {
   showDialog(
     context: ctx,
@@ -19,33 +19,25 @@ void showActionDialog({
             service.error = '';
             Navigator.of(ctx).pop();
           },
-          child: Text('Okay'),
+          child: const Text('Okay'),
         ),
       ],
     ),
   );
 }
 
-String timeAGo({Timestamp timestamp}) {
+String timeAGo({required Timestamp timestamp}) {
   DateTime dateTime = timestamp.toDate();
   return timeago.format(dateTime).replaceAll('ago', '');
 }
 
-String formatTimestamp({Timestamp timestamp}) {
+String formatTimestamp({required Timestamp timestamp}) {
   DateTime dateTime = timestamp.toDate();
   String minute;
   if (dateTime.minute.toString().length == 1) {
-    minute = '0' + dateTime.minute.toString();
+    minute = '0${dateTime.minute}';
   } else {
     minute = dateTime.minute.toString();
   }
-  return dateTime.year.toString() +
-      '/' +
-      dateTime.month.toString() +
-      '/' +
-      dateTime.day.toString() +
-      ' ' +
-      dateTime.hour.toString() +
-      ':' +
-      minute;
+  return '${dateTime.year}/${dateTime.month}/${dateTime.day} ${dateTime.hour}:$minute';
 }

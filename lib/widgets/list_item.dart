@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -18,16 +16,17 @@ import 'package:party/widgets/temp/my_error_widget.dart';
 import 'border_gradient.dart';
 import 'cached_image.dart';
 
-class ListItem extends HookWidget {
-  final Friend friend;
-  final Group group;
-  final Party party;
+class ListItem extends HookConsumerWidget {
+  final Friend? friend;
+  final Group? group;
+  final Party? party;
   //final bool shouldAddGroup;
   //final bool isGroup;
   //final bool isFavorite;
   //final int index;
 
-  ListItem({
+  const ListItem({
+    super.key,
     this.friend,
     this.group,
     this.party,
@@ -37,41 +36,41 @@ class ListItem extends HookWidget {
     //this.index,
   });
   @override
-  Widget build(BuildContext context) {
-    final messageType = useProvider(messageTypeProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final messageType = ref.watch(messageTypeProvider);
     final controller =
-        useAnimationController(duration: Duration(milliseconds: 10));
+        useAnimationController(duration: const Duration(milliseconds: 10));
     String uid;
     dynamic object;
-    switch (messageType.state) {
-      case MessageType.Friends:
+    switch (messageType) {
+      case MessageType.friends:
         object = friend;
-        uid = friend.uid;
+        uid = friend!.uid;
         break;
-      case MessageType.Groups:
+      case MessageType.groups:
         object = group;
-        uid = group.id;
+        uid = group!.id;
         break;
-      case MessageType.Parties:
+      case MessageType.parties:
         object = party;
-        uid = party.id;
+        uid = party!.id;
         break;
     }
     final messageLastMessageStream =
-        useProvider(messageLastMessageStreamProvider(uid));
+        ref.watch(messageLastMessageStreamProvider(uid));
     return GestureDetector(
       onTapDown: (_) => controller.forward(),
       onTapUp: (_) => controller.reverse(),
       onTap: () {
-        switch (messageType.state) {
-          case MessageType.Friends:
-            context.read(messageDataProvider).state = friend;
+        switch (messageType) {
+          case MessageType.friends:
+            ref.read(messageDataProvider.notifier).state = friend;
             break;
-          case MessageType.Groups:
-            context.read(messageDataProvider).state = group;
+          case MessageType.groups:
+            ref.read(messageDataProvider.notifier).state = group;
             break;
-          case MessageType.Parties:
-            context.read(messageDataProvider).state = party;
+          case MessageType.parties:
+            ref.read(messageDataProvider.notifier).state = party;
             break;
         }
         Navigator.pushNamed(context, FriendScreen.routeName);
@@ -94,16 +93,17 @@ class ListItem extends HookWidget {
 
 class AnimatedListTile extends AnimatedWidget {
   const AnimatedListTile({
+    super.key,
     AnimationController controller,
-    @required this.messageLastMessageStream,
-    @required this.object,
+    required this.messageLastMessageStream,
+    required this.object,
   }) : super(listenable: controller);
 
   final AsyncValue<Message> messageLastMessageStream;
-  final object;
+  final Object object;
   AnimationController get controller => listenable;
 
-  Row buildContent(object, BuildContext context, Message message) {
+  Row buildContent(object, BuildContext context, Message? message) {
     return Row(
       children: <Widget>[
         const SizedBox(width: 5),
@@ -118,31 +118,29 @@ class AnimatedListTile extends AnimatedWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Container(
+            SizedBox(
               width: MediaQuery.of(context).size.width * 0.35,
               //width: 130,
               child: Text(
                 object.name,
                 textAlign: TextAlign.start,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: white,
+                style: const TextStyle(
+                  color: MyColors.white,
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
             const SizedBox(height: 5),
-            Container(
+            SizedBox(
               width: MediaQuery.of(context).size.width * 0.35,
               child: Text(
-                message.runtimeType == Message
-                    ? message.message
-                    : 'blablablabla',
+                message != null ? message.message : 'blablablabla',
                 textAlign: TextAlign.start,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: grey,
+                style: const TextStyle(
+                  color: MyColors.grey,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -151,26 +149,24 @@ class AnimatedListTile extends AnimatedWidget {
           ],
         ),
         const Expanded(child: Text('')),
-        if (message.runtimeType == Message &&
+        if (message != null &&
             Timestamp.fromMicrosecondsSinceEpoch(0) != message.createdAt)
           Container(
             height: 30,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: blue.withOpacity(0.2),
+              color: MyColors.blue.withOpacity(0.2),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  message.runtimeType == Message
-                      ? timeAGo(timestamp: message.createdAt)
-                      : '24 hours',
+                  timeAGo(timestamp: message.createdAt),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: blue,
+                    color: MyColors.blue,
                   ),
                 ),
               ],
@@ -197,7 +193,7 @@ class AnimatedListTile extends AnimatedWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: black,
+            color: MyColors.black,
           ),
           height: 70,
           child: messageLastMessageStream.when(

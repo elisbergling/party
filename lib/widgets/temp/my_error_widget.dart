@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class MyErrorWidget extends StatelessWidget {
   const MyErrorWidget({
-    Key key,
-    this.e,
-    this.s,
-  }) : super(key: key);
+    super.key,
+    required this.e,
+    required this.s,
+  });
 
-  final String e;
+  final Object e;
   final StackTrace s;
 
   @override

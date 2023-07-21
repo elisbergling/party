@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
 class LastItemOnProfile extends StatelessWidget {
-  const LastItemOnProfile({Key key, this.child, this.index, this.length})
-      : super(key: key);
+  const LastItemOnProfile({
+    super.key,
+    required this.child,
+    required this.index,
+    required this.length,
+  });
 
   final Widget child;
   final int index;

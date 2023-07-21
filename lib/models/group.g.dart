@@ -11,8 +11,7 @@ Group _$GroupFromJson(Map<String, dynamic> json) {
     id: json['id'] as String,
     name: json['name'] as String,
     imgUrl: json['imgUrl'] as String,
-    membersUids:
-        (json['membersUids'] as List)?.map((e) => e as String)?.toList(),
+    membersUids: (json['membersUids'] as List).map((e) => e as String).toList(),
   );
 }
 

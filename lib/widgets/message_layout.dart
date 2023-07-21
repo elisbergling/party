@@ -5,10 +5,10 @@ import 'package:party/models/message.dart';
 
 class MessageLayout extends StatelessWidget {
   const MessageLayout({
-    Key key,
-    @required this.isMe,
-    @required this.message,
-  }) : super(key: key);
+    super.key,
+    required this.isMe,
+    required this.message,
+  });
 
   final bool isMe;
   final Message message;
@@ -44,19 +44,26 @@ class MessageLayout extends StatelessWidget {
                   ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(
-                topRight: isMe ? Radius.circular(10.0) : Radius.circular(10.0),
-                topLeft: isMe ? Radius.circular(10.0) : Radius.circular(10.0),
-                bottomRight:
-                    isMe ? Radius.circular(0.0) : Radius.circular(10.0),
-                bottomLeft: isMe ? Radius.circular(10.0) : Radius.circular(0.0),
+                topRight: isMe
+                    ? const Radius.circular(10.0)
+                    : const Radius.circular(10.0),
+                topLeft: isMe
+                    ? const Radius.circular(10.0)
+                    : const Radius.circular(10.0),
+                bottomRight: isMe
+                    ? const Radius.circular(0.0)
+                    : const Radius.circular(10.0),
+                bottomLeft: isMe
+                    ? const Radius.circular(10.0)
+                    : const Radius.circular(0.0),
               ),
               gradient: LinearGradient(
                 colors: isMe
                     ? [
-                        blue.withOpacity(0.6),
-                        blue.withOpacity(0.8),
+                        MyColors.blue.withOpacity(0.6),
+                        MyColors.blue.withOpacity(0.8),
                       ]
-                    : [dark, dark],
+                    : [MyColors.dark, MyColors.dark],
                 tileMode: TileMode.clamp,
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -67,7 +74,7 @@ class MessageLayout extends StatelessWidget {
               message.message,
               textAlign: TextAlign.start,
               style: TextStyle(
-                color: isMe ? white : white,
+                color: isMe ? MyColors.white : MyColors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -83,8 +90,8 @@ class MessageLayout extends StatelessWidget {
             child: Text(
               time,
               textAlign: isMe ? TextAlign.end : TextAlign.start,
-              style: TextStyle(
-                color: white,
+              style: const TextStyle(
+                color: MyColors.white,
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),

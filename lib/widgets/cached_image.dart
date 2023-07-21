@@ -8,18 +8,18 @@ class CachedImage extends StatelessWidget {
   final double height;
   final double width;
   final String name;
-  final Color color;
-  final Color textColor;
-
+  final Color? color;
+  final Color? textColor;
   final BoxFit fit;
 
-  CachedImage(
+  const CachedImage(
     this.imageUrl, {
-    this.height,
-    this.width,
-    this.name = '?',
-    this.color,
+    super.key,
+    required this.height,
+    required this.width,
     this.textColor,
+    this.color,
+    this.name = '?',
     this.fit = BoxFit.cover,
   });
 
@@ -32,14 +32,14 @@ class CachedImage extends StatelessWidget {
           width: width,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: color == null ? blue : color,
+            color: color ?? MyColors.blue,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: CachedNetworkImage(
               imageUrl: imageUrl,
               fit: fit,
-              placeholder: (context, url) => MyLoadingWidget(),
+              placeholder: (context, url) => const MyLoadingWidget(),
               errorWidget: (context, url, error) => buildContainer(context),
             ),
           ),
@@ -63,11 +63,11 @@ class CachedImage extends StatelessWidget {
         gradient: LinearGradient(
           colors: color == null
               ? [
-                  blue,
-                  purple,
-                  red,
+                  MyColors.blue,
+                  MyColors.purple,
+                  MyColors.red,
                 ]
-              : [color, color],
+              : [color!, color!],
           tileMode: TileMode.clamp,
           begin: Alignment.bottomLeft,
           end: Alignment.topRight,
@@ -79,13 +79,13 @@ class CachedImage extends StatelessWidget {
                 name.split('')[0],
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: textColor == null ? black : textColor,
+                  color: textColor ?? MyColors.black,
                   fontWeight: FontWeight.bold,
                   fontSize: height / 2.2,
                 ),
               ),
             )
-          : Container(height: 0.0, width: 0.0),
+          : const SizedBox(height: 0.0, width: 0.0),
     );
   }
 }

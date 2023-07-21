@@ -14,32 +14,32 @@ import 'package:party/widgets/custom_button.dart';
 import 'package:party/widgets/custom_text_field.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
 
-class AuthScreen extends HookWidget {
-  const AuthScreen({Key key}) : super(key: key);
+class AuthScreen extends HookConsumerWidget {
+  const AuthScreen({super.key});
 
   void showErrorDialog({
-    String message,
-    BuildContext ctx,
-    bool isAuth,
-    AuthService authService,
-    UserServiceCreateUser userServiceCreateUser,
+    required String message,
+    required BuildContext ctx,
+    required bool isAuth,
+    required AuthService authService,
+    required UserServiceCreateUser userServiceCreateUser,
   }) {
     showDialog(
       context: ctx,
       builder: (ctx) => AlertDialog(
-        title: Text('An Error Occured'),
+        title: const Text('An Error Occured'),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () {
               if (isAuth) {
-                authService.error = '';
+                authService.setError('');
               } else {
-                userServiceCreateUser.error = '';
+                userServiceCreateUser.setError('');
               }
               Navigator.of(ctx).pop();
             },
-            child: Text('Okay'),
+            child: const Text('Okay'),
           ),
         ],
       ),
@@ -47,11 +47,11 @@ class AuthScreen extends HookWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final isLogin = useProvider(isLoginProvider);
-    final auth = useProvider(authProvider);
-    final userCreateUser = useProvider(userCreateUserProvider);
-    final _formKey = GlobalKey<FormState>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isLogin = ref.watch(isLoginProvider);
+    final auth = ref.watch(authProvider);
+    final userCreateUser = ref.watch(userCreateUserProvider);
+    final formKey = GlobalKey<FormState>();
     final controllerName = useTextEditingController();
     final controllerUsername = useTextEditingController();
     final controllerEmail = useTextEditingController();
@@ -71,13 +71,13 @@ class AuthScreen extends HookWidget {
                       width: 750,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: black,
+                        color: MyColors.black,
                       ),
                       child: Form(
-                        key: _formKey,
+                        key: formKey,
                         child: Column(
                           children: [
-                            if (!isLogin.state) ...[
+                            if (!isLogin) ...[
                               CustomTextField(
                                 text: 'name',
                                 isForm: true,
@@ -146,16 +146,16 @@ class AuthScreen extends HookWidget {
                                     controllerConfirmPassword,
                               ),
                             auth.isLoading
-                                ? MyLoadingWidget()
+                                ? const MyLoadingWidget()
                                 : CustomButton(
                                     onTap: () async {
-                                      if (!_formKey.currentState.validate()) {
+                                      if (!formKey.currentState.validate()) {
                                         return;
                                       }
-                                      _formKey.currentState.save();
-                                      if (isLogin.state) {
+                                      formKey.currentState.save();
+                                      if (isLogin) {
                                         print('start');
-                                        await context
+                                        await ref
                                             .read(authProvider)
                                             .loginWithEmail(
                                               email: controllerEmail.text,
@@ -172,7 +172,7 @@ class AuthScreen extends HookWidget {
                                         }
                                         print('finnish');
                                       } else {
-                                        User user = await context
+                                        User user = await ref
                                             .read(authProvider)
                                             .signUpWithEmail(
                                               email: controllerEmail.text,
@@ -186,8 +186,9 @@ class AuthScreen extends HookWidget {
                                             authService: auth,
                                           );
                                         } else {
-                                          await context
-                                              .read(userCreateUserProvider)
+                                          await ref
+                                              .read(userCreateUserProvider
+                                                  .notifier)
                                               .createUser(
                                                 uid: user.uid,
                                                 email: user.email,
@@ -208,7 +209,7 @@ class AuthScreen extends HookWidget {
                                         }
                                       }
                                     },
-                                    text: !isLogin.state ? 'Sign Up' : 'Login',
+                                    text: !isLogin ? 'Sign Up' : 'Login',
                                   ),
                             const SizedBox(height: 20),
                           ],
@@ -221,19 +222,20 @@ class AuthScreen extends HookWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      isLogin.state
-                          ? Text(
+                      isLogin
+                          ? const Text(
                               'Don\'t have an accont?',
-                              style: TextStyle(color: white),
+                              style: TextStyle(color: MyColors.white),
                             )
-                          : Text(
+                          : const Text(
                               'Already have an accout?',
-                              style: TextStyle(color: white),
+                              style: TextStyle(color: MyColors.white),
                             ),
                       const SizedBox(width: 20),
                       CustomButton(
-                        onTap: () => isLogin.state = !isLogin.state,
-                        text: isLogin.state ? 'Sign Up' : 'Login',
+                        onTap: () =>
+                            ref.read(isLoginProvider.notifier).state = !isLogin,
+                        text: isLogin ? 'Sign Up' : 'Login',
                       ),
                     ],
                   ),

@@ -7,33 +7,31 @@ import 'package:party/screens/home/profile_screen.dart';
 import 'add_group_screen.dart';
 
 class UserScreen extends StatelessWidget {
-  const UserScreen({Key key}) : super(key: key);
+  const UserScreen({super.key});
 
   static const routeName = '/user';
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Row(
-        children: [
-          Container(
-            width: 400,
-            child: ProfileScreen(),
-          ),
-          Container(
-            width: 400,
-            child: AddFriendScreen(),
-          ),
-          Container(
-            width: 400,
-            child: AddGroupScreen(),
-          ),
-          Container(
-            width: 400,
-            child: AddPartyScreen(),
-          ),
-        ],
-      ),
+    return const Row(
+      children: [
+        SizedBox(
+          width: 400,
+          child: ProfileScreen(),
+        ),
+        SizedBox(
+          width: 400,
+          child: AddFriendScreen(),
+        ),
+        SizedBox(
+          width: 400,
+          child: AddGroupScreen(),
+        ),
+        SizedBox(
+          width: 400,
+          child: AddPartyScreen(),
+        ),
+      ],
     );
   }
 }

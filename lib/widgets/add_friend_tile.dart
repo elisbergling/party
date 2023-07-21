@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/models/friend.dart';
@@ -8,24 +7,24 @@ import 'package:party/providers/auth_provider.dart';
 import 'package:party/providers/friend_provider.dart';
 import 'package:party/providers/state_provider.dart';
 import 'package:party/screens/home/friend_screen.dart';
+import 'package:party/widgets/border_gradient.dart';
+import 'package:party/widgets/cached_image.dart';
 
-import 'border_gradient.dart';
-import 'cached_image.dart';
-
-class AddFriendTile extends HookWidget {
+class AddFriendTile extends HookConsumerWidget {
   final Friend friend;
   final bool isLeft;
   final Color color;
 
-  AddFriendTile({
-    this.friend,
-    this.isLeft,
-    this.color = black,
+  const AddFriendTile({
+    super.key,
+    required this.friend,
+    required this.isLeft,
+    this.color = MyColors.black,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final uid = useProvider(authStateChangesProvider).data.value.uid;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final uid = ref.watch(authStateChangesProvider).value?.uid;
     return Container(
       margin: EdgeInsets.only(
         left: isLeft ? 10 : 0,
@@ -57,7 +56,7 @@ class AddFriendTile extends HookWidget {
                       name: friend.name,
                     ),
                     const SizedBox(width: 6),
-                    Container(
+                    SizedBox(
                       width: 50,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,38 +65,40 @@ class AddFriendTile extends HookWidget {
                             friend.name,
                             textAlign: TextAlign.center,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: white,
+                              color: MyColors.white,
                             ),
                           ),
                           Text(
                             friend.username,
                             textAlign: TextAlign.center,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 9,
-                              color: grey,
+                              color: MyColors.grey,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    Expanded(child: Container(width: 0.0, height: 0.0)),
+                    const Expanded(child: SizedBox(width: 0.0, height: 0.0)),
                     friend.friendUids.contains(uid)
                         ? buildButton(context, CupertinoIcons.bubble_left, () {
-                            context.read(messageDataProvider).state = friend;
+                            ref.read(messageDataProvider.notifier).state =
+                                friend;
                             Navigator.pushNamed(
                                 context, FriendScreen.routeName);
                           })
                         : buildButton(
                             context,
                             CupertinoIcons.person_add,
-                            () async => await context
-                                .read(friendProvider)
-                                .addFriend(friend: friend)),
+                            () async => await ref
+                                .read(friendProvider.notifier)
+                                .addFriend(friend: friend),
+                          ),
                     const SizedBox(width: 10),
                   ],
                 ),
@@ -109,9 +110,12 @@ class AddFriendTile extends HookWidget {
     );
   }
 
-  Container buildButton(
-      BuildContext context, IconData icon, Function onPressed) {
-    return Container(
+  SizedBox buildButton(
+    BuildContext context,
+    IconData icon,
+    Function() onPressed,
+  ) {
+    return SizedBox(
       width: 35,
       height: 35,
       child: IconButton(

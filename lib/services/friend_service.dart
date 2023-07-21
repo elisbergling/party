@@ -1,99 +1,75 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:party/constants/strings.dart';
 import 'package:party/models/friend.dart';
+import 'package:party/services/service_notifier.dart';
+import 'package:party/utils/auth_state_mixin.dart';
 
-class FriendService with ChangeNotifier {
-  FriendService({
-    @required this.uid,
-    //@required this.user,
-  }) : assert(uid != null, 'Cannot create FriendService with null uid');
-  final String uid;
-  //final Friend user;
-
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
-  String _error = '';
-  String get error => _error;
-
+class FriendService extends ServiceNotifier with AuthState {
   CollectionReference userCollection =
-      FirebaseFirestore.instance.collection(USERS);
+      FirebaseFirestore.instance.collection(MyStrings.users);
 
-  Stream<Friend> friendStream({String uidTo}) {
+  Stream<Friend>? friendStream({required String uidTo}) {
     try {
       return userCollection
           .doc(uidTo)
           .snapshots()
-          ?.map((map) => Friend?.fromJson(map?.data()));
+          .map((map) => Friend?.fromJson(map.data()));
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
       return null;
     }
   }
 
-  Stream<List<Friend>> friendsStream() {
+  Stream<List<Friend>>? friendsStream() {
     try {
       return userCollection
-          .where(FRIEND_UIDS, arrayContains: uid)
+          .where(MyStrings.friendUids, arrayContains: uid)
           .snapshots()
           .map((event) =>
               event.docs.map((e) => Friend.fromJson(e.data())).toList());
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
       return null;
     }
   }
 
-  Future<List<Friend>> friendsFuture() async {
+  Future<List<Friend>?> friendsFuture() async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       return await userCollection
-          .where(FRIEND_UIDS, arrayContains: uid)
+          .where(MyStrings.friendUids, arrayContains: uid)
           .get()
           .then((event) =>
               event.docs.map((e) => Friend.fromJson(e.data())).toList());
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
       return null;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
-  Future<void> deleteFriend({String uidTo}) async {
+  Future<void> deleteFriend({required String uidTo}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       await userCollection.doc(uid).update({
-        FRIEND_UIDS: FieldValue.arrayRemove([uidTo])
+        MyStrings.friendUids: FieldValue.arrayRemove([uidTo])
       });
       await userCollection.doc(uidTo).update({
-        FRIEND_UIDS: FieldValue.arrayRemove([uid])
+        MyStrings.friendUids: FieldValue.arrayRemove([uid])
       });
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
-  Future<void> addFriend({Friend friend}) async {
+  Future<void> addFriend({required Friend friend}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       if (friend.friendUids.contains(uid)) {
-        return null;
+        return;
       } else {
         if (friend.requestUids.contains(uid)) {
           await acceptFriendRequest(uidTo: friend.uid);
@@ -102,88 +78,69 @@ class FriendService with ChangeNotifier {
         }
       }
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
-  Future<void> acceptFriendRequest({String uidTo}) async {
+  Future<void> acceptFriendRequest({required String uidTo}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       await userCollection.doc(uidTo).update({
-        REQUEST_UIDS: FieldValue.arrayRemove([uid])
+        MyStrings.requestUids: FieldValue.arrayRemove([uid])
       });
       await userCollection.doc(uid).update({
-        FRIEND_UIDS: FieldValue.arrayUnion([uidTo])
+        MyStrings.friendUids: FieldValue.arrayUnion([uidTo])
       });
       await userCollection.doc(uidTo).update({
-        FRIEND_UIDS: FieldValue.arrayUnion([uid])
+        MyStrings.friendUids: FieldValue.arrayUnion([uid])
       });
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
-  Future<void> denyFriendRequest({String uidTo}) async {
+  Future<void> denyFriendRequest({required String uidTo}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       await userCollection.doc(uidTo).update({
-        REQUEST_UIDS: FieldValue.arrayRemove([uid])
+        MyStrings.requestUids: FieldValue.arrayRemove([uid])
       });
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
-  Future<void> makeFriendRequest({String uidTo}) async {
+  Future<void> makeFriendRequest({required String uidTo}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       await userCollection.doc(uid).update({
-        REQUEST_UIDS: FieldValue.arrayUnion([uidTo])
+        MyStrings.requestUids: FieldValue.arrayUnion([uidTo])
       });
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
-  Stream<Friend> getMyStream() {
+  Stream<Friend>? getMyStream() {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       return userCollection
           .doc(uid)
           .snapshots()
           .map((event) => Friend.fromJson(event.data()));
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
       return null;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 }

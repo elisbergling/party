@@ -4,17 +4,19 @@ import 'package:party/constants/colors.dart';
 import 'package:party/main.dart';
 
 class CustomBackButton extends StatelessWidget {
-  const CustomBackButton({Key key, this.shouldNotJustPop = false})
-      : super(key: key);
+  const CustomBackButton({
+    super.key,
+    this.shouldNotJustPop = false,
+  });
 
-  final shouldNotJustPop;
+  final bool shouldNotJustPop;
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(
+      icon: const Icon(
         CupertinoIcons.back,
-        color: white,
+        color: MyColors.white,
       ),
       iconSize: 30,
       onPressed: shouldNotJustPop

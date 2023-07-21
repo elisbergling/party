@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:party/constants/colors.dart';
 
 class BackgroundGradient extends StatelessWidget {
-  const BackgroundGradient({Key key, this.child}) : super(key: key);
+  const BackgroundGradient({super.key, required this.child});
 
   final Scaffold child;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: black,
+      color: MyColors.black,
       // decoration: BoxDecoration(
       //   gradient: LinearGradient(
       //     colors: [test1, test1],

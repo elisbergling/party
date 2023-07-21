@@ -5,13 +5,23 @@ part 'friend.g.dart';
 @JsonSerializable()
 class Friend {
   Friend({
-    this.uid,
-    this.name,
-    this.username,
-    this.email,
-    this.imgUrl,
-    this.friendUids,
-    this.requestUids,
+    required this.uid,
+    required this.name,
+    required this.username,
+    required this.email,
+    required this.imgUrl,
+    required this.friendUids,
+    required this.requestUids,
+  });
+
+  Friend.empty({
+    required this.name,
+    this.uid = '',
+    this.username = '',
+    this.email = '',
+    this.imgUrl = '',
+    this.friendUids = const [],
+    this.requestUids = const [],
   });
 
   String uid;
@@ -22,6 +32,8 @@ class Friend {
   List<String> friendUids;
   List<String> requestUids;
 
-  factory Friend.fromJson(Map<String, dynamic> json) => _$FriendFromJson(json);
+  factory Friend.fromJson(Object? doc) =>
+      _$FriendFromJson(doc as Map<String, dynamic>);
+
   Map<String, dynamic> toJson() => _$FriendToJson(this);
 }

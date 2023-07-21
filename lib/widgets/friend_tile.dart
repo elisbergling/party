@@ -7,16 +7,15 @@ import 'package:party/models/friend.dart';
 import 'package:party/providers/state_provider.dart';
 import 'package:party/screens/home/friend_screen.dart';
 import 'package:party/widgets/cached_image.dart';
+import 'package:party/widgets/border_gradient.dart';
 
-import 'border_gradient.dart';
-
-class FriendTile extends HookWidget {
+class FriendTile extends HookConsumerWidget {
   const FriendTile({
-    Key key,
-    this.friend,
+    super.key,
+    required this.friend,
     this.isForParty = false,
     this.isForGroup = false,
-  }) : super(key: key);
+  });
 
   final Friend friend;
   final bool isForParty;
@@ -31,11 +30,10 @@ class FriendTile extends HookWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final invitedUids = useProvider(invitedUidsProvider);
-    final groupMembersUids = useProvider(groupMembersUidsProvider);
-    final isSelected =
-        useState(initValue(invitedUids.state, groupMembersUids.state));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final invitedUids = ref.watch(invitedUidsProvider);
+    final groupMembersUids = ref.watch(groupMembersUidsProvider);
+    final isSelected = useState(initValue(invitedUids, groupMembersUids));
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 7, horizontal: 14),
       height: 120,
@@ -47,8 +45,8 @@ class FriendTile extends HookWidget {
             color: isSelected.value
                 ? Colors.transparent
                 : !isForGroup && !isForParty
-                    ? black
-                    : dark,
+                    ? MyColors.black
+                    : MyColors.dark,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -72,60 +70,59 @@ class FriendTile extends HookWidget {
                     friend.name,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
-                      color: white,
+                      color: MyColors.white,
                     ),
                   ),
                   Text(
                     friend.username,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
-                      color: grey,
+                      color: MyColors.grey,
                     ),
                   ),
                   isForParty || isForGroup
                       ? IconButton(
                           padding: const EdgeInsets.all(0),
                           icon: isSelected.value
-                              ? Icon(CupertinoIcons.person_badge_minus)
-                              : Icon(CupertinoIcons.person_add),
+                              ? const Icon(CupertinoIcons.person_badge_minus)
+                              : const Icon(CupertinoIcons.person_add),
                           iconSize: 24,
                           onPressed: () {
                             isSelected.value = !isSelected.value;
 
                             if (isForParty) {
-                              if (invitedUids.state
-                                  .any((uid) => uid == friend.uid)) {
-                                context
-                                    .read(invitedUidsProvider)
+                              if (invitedUids.any((uid) => uid == friend.uid)) {
+                                ref
+                                    .read(invitedUidsProvider.notifier)
                                     .state
                                     .remove(friend.uid);
                               } else {
-                                context
-                                    .read(invitedUidsProvider)
+                                ref
+                                    .read(invitedUidsProvider.notifier)
                                     .state
                                     .add(friend.uid);
                               }
-                              print(invitedUids.state.toString());
+                              print(invitedUids.toString());
                             } else {
-                              if (groupMembersUids.state
+                              if (groupMembersUids
                                   .any((uid) => uid == friend.uid)) {
-                                context
-                                    .read(groupMembersUidsProvider)
+                                ref
+                                    .read(groupMembersUidsProvider.notifier)
                                     .state
                                     .remove(friend.uid);
                               } else {
-                                context
-                                    .read(groupMembersUidsProvider)
+                                ref
+                                    .read(groupMembersUidsProvider.notifier)
                                     .state
                                     .add(friend.uid);
                               }
-                              print(groupMembersUids.state.toString());
+                              print(groupMembersUids.toString());
                             }
                           },
                         )
@@ -133,23 +130,22 @@ class FriendTile extends HookWidget {
                           children: [
                             IconButton(
                               padding: const EdgeInsets.all(0),
-                              icon: Icon(
+                              icon: const Icon(
                                 CupertinoIcons.bubble_left,
-                                color: white,
+                                color: MyColors.white,
                               ),
                               iconSize: 24,
                               onPressed: () {
-                                context.read(messageDataProvider).state =
-                                    friend;
+                                ref.read(messageDataProvider).state = friend;
                                 Navigator.of(context)
                                     .pushNamed(FriendScreen.routeName);
                               },
                             ),
                             IconButton(
                               padding: const EdgeInsets.all(0),
-                              icon: Icon(
+                              icon: const Icon(
                                 CupertinoIcons.phone,
-                                color: white,
+                                color: MyColors.white,
                               ),
                               iconSize: 24,
                               onPressed: () {},

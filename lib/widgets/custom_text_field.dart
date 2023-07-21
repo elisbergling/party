@@ -1,37 +1,36 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:party/constants/colors.dart';
 
 class CustomTextField extends HookWidget {
   const CustomTextField({
-    Key key,
-    this.text,
-    this.isForm = false,
-    this.isObscure = false,
+    super.key,
+    required this.text,
+    this.textEditingController,
     this.validator,
     this.onChanged,
     this.onSubmitted,
-    this.textEditingController,
-    this.color = dark,
+    this.icon,
+    this.isForm = false,
+    this.isObscure = false,
+    this.color = MyColors.dark,
     this.margin = 20,
     this.borderRadius = 10,
     this.keyboardType = TextInputType.text,
-    this.icon,
-  }) : super(key: key);
+  });
 
   final String text;
   final bool isForm;
   final bool isObscure;
-  final Function validator;
-  final Function onChanged;
-  final Function onSubmitted;
-  final TextEditingController textEditingController;
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
+  final void Function(String)? onSubmitted;
+  final TextEditingController? textEditingController;
   final Color color;
   final double margin;
   final double borderRadius;
   final TextInputType keyboardType;
-  final IconData icon;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -49,21 +48,21 @@ class CustomTextField extends HookWidget {
                 validator: validator,
                 obscureText: isObscure,
                 keyboardType: keyboardType,
-                style: TextStyle(color: white),
+                style: const TextStyle(color: MyColors.white),
                 decoration: InputDecoration(
                   hintText: text,
-                  hintStyle: TextStyle(color: grey),
+                  hintStyle: const TextStyle(color: MyColors.grey),
                 ),
               )
             : TextField(
                 controller: textEditingController,
                 onChanged: onChanged,
                 onSubmitted: onSubmitted,
-                style: TextStyle(color: white),
+                style: const TextStyle(color: MyColors.white),
                 decoration: InputDecoration(
                   hintText: text,
-                  hintStyle: TextStyle(color: grey),
-                  icon: icon != null ? Icon(icon, color: blue) : null,
+                  hintStyle: const TextStyle(color: MyColors.grey),
+                  icon: Icon(icon, color: MyColors.blue),
                 ),
               ),
       ),

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -18,14 +17,12 @@ import 'package:party/widgets/info_box.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
 
-class AddPartyScreen extends HookWidget {
-  const AddPartyScreen({
-    Key key,
-  }) : super(key: key);
+class AddPartyScreen extends HookConsumerWidget {
+  const AddPartyScreen({super.key});
 
   static const routeName = '/add_party';
 
-  String validator(value) {
+  String? validator(value) {
     if (value.isEmpty) {
       return 'Well, you have to enter a name';
     }
@@ -33,32 +30,32 @@ class AddPartyScreen extends HookWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
-    final party = useProvider(partyProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = GlobalKey<FormState>();
+    final party = ref.watch(partyProvider);
     final controllerName = useTextEditingController();
     final controllerAbout = useTextEditingController();
     final controllerPrice = useTextEditingController();
-    final invitedUids = useProvider(invitedUidsProvider);
-    final friendFriendsStream = useProvider(friendFriendsStreamProvider);
-    final partyDate = useProvider(partyDateProvider);
-    final partyTimeOfDay = useProvider(partyTimeOfDayProvider);
-    final locationInfo = useProvider(locationInfoProvider);
+    final invitedUids = ref.watch(invitedUidsProvider);
+    final friendFriendsStream = ref.watch(friendFriendsStreamProvider);
+    final partyDate = ref.watch(partyDateProvider);
+    final partyTimeOfDay = ref.watch(partyTimeOfDayProvider);
+    final locationInfo = ref.watch(locationInfoProvider);
     return BackgroundGradient(
       child: Scaffold(
         appBar: AppBar(
-          leading: CustomBackButton(shouldNotJustPop: true),
-          title: Text(
+          leading: const CustomBackButton(shouldNotJustPop: true),
+          title: const Text(
             'New Party',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: white,
+              color: MyColors.white,
             ),
           ),
         ),
         body: Form(
-          key: _formKey,
+          key: formKey,
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -85,22 +82,23 @@ class AddPartyScreen extends HookWidget {
                   children: [
                     CustomButton(
                       onTap: () async {
-                        context.read(partyDateProvider).state =
+                        ref.read(partyDateProvider.notifier).state =
                             await showDatePicker(
                           context: context,
-                          initialDate: partyDate.state ?? DateTime.now(),
+                          initialDate: partyDate ?? DateTime.now(),
                           firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(Duration(days: 365)),
+                          lastDate:
+                              DateTime.now().add(const Duration(days: 365)),
                         );
                       },
                       text: 'Select Date',
                     ),
                     CustomButton(
                       onTap: () async {
-                        context.read(partyTimeOfDayProvider).state =
+                        ref.read(partyTimeOfDayProvider.notifier).state =
                             await showTimePicker(
                           context: context,
-                          initialTime: partyTimeOfDay.state ?? TimeOfDay.now(),
+                          initialTime: partyTimeOfDay ?? TimeOfDay.now(),
                           initialEntryMode: TimePickerEntryMode.input,
                         );
                       },
@@ -109,17 +107,18 @@ class AddPartyScreen extends HookWidget {
                     CustomButton(
                       onTap: () => showDialog(
                           context: context,
-                          builder: (context) => MapDialog(shouldAdd: true)),
+                          builder: (context) =>
+                              const MapDialog(shouldAdd: true)),
                       text: 'Select Location',
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
-                Container(
+                SizedBox(
                   height: 141,
                   child: friendFriendsStream.when(
                     data: (friends) => ListView.builder(
-                      physics: BouncingScrollPhysics(),
+                      physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
                       itemCount: friends.length,
                       itemBuilder: (context, index) => FriendTile(
@@ -128,27 +127,27 @@ class AddPartyScreen extends HookWidget {
                         isForGroup: false,
                       ),
                     ),
-                    loading: () => MyLoadingWidget(),
+                    loading: () => const MyLoadingWidget(),
                     error: (e, s) => MyErrorWidget(e: e, s: s),
                   ),
                 ),
                 const SizedBox(height: 20),
-                Container(
+                SizedBox(
                   height: 26,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
-                    physics: BouncingScrollPhysics(),
+                    physics: const BouncingScrollPhysics(),
                     children: [
                       const SizedBox(width: 20),
                       InfoBox(
-                        text: partyDate.state != null
-                            ? partyDate.state.toString().split(' ')[0] + ' '
+                        text: partyDate != null
+                            ? '${partyDate.toString().split(' ')[0]} '
                             : 'date',
                       ),
                       const SizedBox(width: 20),
                       InfoBox(
-                        text: partyTimeOfDay.state != null
-                            ? partyTimeOfDay.state
+                        text: partyTimeOfDay != null
+                            ? partyTimeOfDay
                                 .toString()
                                 .split('(')[1]
                                 .split(')')[0]
@@ -156,8 +155,8 @@ class AddPartyScreen extends HookWidget {
                       ),
                       const SizedBox(width: 20),
                       InfoBox(
-                        text: locationInfo.state != null
-                            ? locationInfo.state.address.split(',')[0]
+                        text: locationInfo != null
+                            ? locationInfo.address.split(',')[0]
                             : 'adress',
                       ),
                       const SizedBox(width: 20),
@@ -168,8 +167,8 @@ class AddPartyScreen extends HookWidget {
                 !party.isLoading
                     ? CustomButton(
                         onTap: () async {
-                          await context.read(partyProvider).addParty(
-                                locationInfo: locationInfo.state,
+                          await ref.read(partyProvider.notifier).addParty(
+                                locationInfo: locationInfo,
                                 about: controllerAbout.text,
                                 imgUrl: '',
                                 name: controllerName.text,
@@ -178,14 +177,14 @@ class AddPartyScreen extends HookWidget {
                                     ? int.parse(controllerPrice.text.trim())
                                     : null,
                                 time: Timestamp.fromDate(
-                                  partyDate.state.add(
+                                  partyDate.add(
                                     Duration(
-                                      hours: partyTimeOfDay.state.hour,
-                                      minutes: partyTimeOfDay.state.minute,
+                                      hours: partyTimeOfDay.hour,
+                                      minutes: partyTimeOfDay.minute,
                                     ),
                                   ),
                                 ),
-                                invitedUids: invitedUids.state,
+                                invitedUids: invitedUids,
                               );
                           showActionDialog(
                             ctx: context,
@@ -199,15 +198,20 @@ class AddPartyScreen extends HookWidget {
                             controllerName.text = '';
                             controllerAbout.text = '';
                             controllerPrice.text = '';
-                            context.read(invitedUidsProvider).state.clear();
-                            context.read(partyDateProvider).state = null;
-                            context.read(partyTimeOfDayProvider).state = null;
-                            context.read(locationInfoProvider).state = null;
+                            ref
+                                .read(invitedUidsProvider.notifier)
+                                .state
+                                .clear();
+                            ref.read(partyDateProvider.notifier).state = null;
+                            ref.read(partyTimeOfDayProvider.notifier).state =
+                                null;
+                            ref.read(locationInfoProvider.notifier).state =
+                                null;
                           }
                         },
                         text: 'Create Party',
                       )
-                    : MyLoadingWidget(),
+                    : const MyLoadingWidget(),
               ],
             ),
           ),

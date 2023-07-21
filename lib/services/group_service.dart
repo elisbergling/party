@@ -1,47 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:party/constants/strings.dart';
 import 'package:party/models/group.dart';
+import 'package:party/services/service_notifier.dart';
+import 'package:party/utils/auth_state_mixin.dart';
 import 'package:uuid/uuid.dart';
 
-class GroupService with ChangeNotifier {
-  GroupService({
-    @required this.uid,
-  }) : assert(uid != null, 'Cannot create FriendService with null uid');
-  final String uid;
-
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
-  String _error = '';
-  String get error => _error;
-  set error(error) => _error = error;
-  static List<String> groupUids = [];
-
+class GroupService extends ServiceNotifier with AuthState {
   CollectionReference groupCollection =
-      FirebaseFirestore.instance.collection(GROUPS);
+      FirebaseFirestore.instance.collection(MyStrings.groups);
 
-  Stream<List<Group>> groupsStream() {
+  Stream<List<Group>>? groupsStream() {
     try {
       return groupCollection
-          .where(MEMBERS_UIDS, arrayContains: uid)
+          .where(MyStrings.membersUids, arrayContains: uid)
           .snapshots()
           .map((event) =>
               event.docs.map((e) => Group.fromJson(e.data())).toList());
     } catch (e) {
-      print(e.toString());
+      setError(e);
       return null;
     }
   }
 
   Future<void> addGroup({
-    String name,
-    String imgUrl,
-    List<String> membersUids,
+    required String name,
+    required String imgUrl,
+    required List<String> membersUids,
   }) async {
     try {
-      _isLoading = true;
-      notifyListeners();
-      Uuid uuid = Uuid();
+      toggleLoading();
+      Uuid uuid = const Uuid();
       if (!membersUids.contains(uid)) {
         membersUids.add(uid);
       }
@@ -53,12 +41,9 @@ class GroupService with ChangeNotifier {
       );
       groupCollection.doc(group.id).set(group.toJson());
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 }

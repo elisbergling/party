@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:party/constants/enum.dart';
 import 'package:party/constants/colors.dart';
+import 'package:party/constants/enum.dart';
 import 'package:party/providers/auth_provider.dart';
 import 'package:party/providers/friend_provider.dart';
 import 'package:party/providers/party_provider.dart';
@@ -20,37 +19,36 @@ import 'package:party/widgets/party_tile.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
 
-class ProfileScreen extends HookWidget {
-  const ProfileScreen({
-    Key key,
-  }) : super(key: key);
+class ProfileScreen extends HookConsumerWidget {
+  const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final userUserStream = useProvider(userUserStreamProvider);
-    final profileStreamType = useProvider(profileStreamTypeProvider);
-    final friendFriendsStream = useProvider(friendFriendsStreamProvider);
-    final partyMyPartiesStream = useProvider(partyMyPartiesStreamProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userUserStream = ref.watch(userUserStreamProvider);
+    final profileStreamType = ref.watch(profileStreamTypeProvider);
+    final friendFriendsStream = ref.watch(friendFriendsStreamProvider);
+    final partyMyPartiesStream = ref.watch(partyMyPartiesStreamProvider);
     final partyUpcomingPartiesStream =
-        useProvider(partyUpcomingPartiesStreamProvider);
+        ref.watch(partyUpcomingPartiesStreamProvider);
     return BackgroundGradient(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             'Profile',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: white,
+              color: MyColors.white,
             ),
           ),
           actions: [
             IconButton(
-              icon: FaIcon(
-                FontAwesomeIcons.signOutAlt,
-                color: white,
+              icon: const FaIcon(
+                Icons.logout,
+                color: MyColors.white,
               ),
-              onPressed: () async => await context.read(authProvider).logOut(),
+              onPressed: () async =>
+                  await ref.read(authProvider.notifier).logOut(),
             )
           ],
         ),
@@ -75,50 +73,50 @@ class ProfileScreen extends HookWidget {
                       children: [
                         Text(
                           data.name,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: white,
+                            color: MyColors.white,
                           ),
                         ),
                         const SizedBox(height: 5),
                         Text(
                           data.username,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: grey,
+                            color: MyColors.grey,
                           ),
                         ),
                       ],
                     ),
                     Expanded(child: Container()),
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         CupertinoIcons.refresh_thick,
-                        color: white,
+                        color: MyColors.white,
                         size: 30,
                       ),
                       onPressed: () => showModalBottomSheet(
                         context: context,
-                        backgroundColor: dark,
+                        backgroundColor: MyColors.dark,
                         isScrollControlled: true,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
                         builder: (context) => UpdateUserInfoScreen(
-                            name: data.name,
-                            username: data.username,
-                            imgUrl: data.imgUrl,
-                            uid: data.uid,
-                          ),
+                          name: data.name,
+                          username: data.username,
+                          imgUrl: data.imgUrl,
+                          uid: data.uid,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 20),
                   ],
                 );
               },
-              loading: () => MyLoadingWidget(),
+              loading: () => const MyLoadingWidget(),
               error: (e, s) => MyErrorWidget(e: e, s: s),
             ),
             const SizedBox(height: 25),
@@ -126,27 +124,30 @@ class ProfileScreen extends HookWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CustomButton(
-                  onTap: () => context.read(profileStreamTypeProvider).state =
-                      ProfileStreamType.Friends,
+                  onTap: () => ref
+                      .read(profileStreamTypeProvider.notifier)
+                      .state = ProfileStreamType.friends,
                   text: 'Friends',
                 ),
                 CustomButton(
-                  onTap: () => context.read(profileStreamTypeProvider).state =
-                      ProfileStreamType.YourParties,
+                  onTap: () => ref
+                      .read(profileStreamTypeProvider.notifier)
+                      .state = ProfileStreamType.yourParties,
                   text: 'Your Parties',
                 ),
                 CustomButton(
-                  onTap: () => context.read(profileStreamTypeProvider).state =
-                      ProfileStreamType.UpcomingParties,
+                  onTap: () => ref
+                      .read(profileStreamTypeProvider.notifier)
+                      .state = ProfileStreamType.upcomingParties,
                   text: 'Upcoming Parties',
                 ),
               ],
             ),
             Expanded(
-              child: profileStreamType.state == ProfileStreamType.Friends
+              child: profileStreamType == ProfileStreamType.friends
                   ? friendFriendsStream.when(
                       data: (friends) => ListView.builder(
-                        physics: BouncingScrollPhysics(),
+                        physics: const BouncingScrollPhysics(),
                         scrollDirection: Axis.vertical,
                         itemCount: friends.length,
                         shrinkWrap: true,
@@ -157,13 +158,13 @@ class ProfileScreen extends HookWidget {
                           child: FriendTile(friend: friends[index]),
                         ),
                       ),
-                      loading: () => MyLoadingWidget(),
+                      loading: () => const MyLoadingWidget(),
                       error: (e, s) => MyErrorWidget(e: e, s: s),
                     )
-                  : profileStreamType.state == ProfileStreamType.YourParties
+                  : profileStreamType == ProfileStreamType.yourParties
                       ? partyMyPartiesStream.when(
                           data: (parties) => ListView.builder(
-                            physics: BouncingScrollPhysics(),
+                            physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.vertical,
                             itemCount: parties.length,
                             shrinkWrap: true,
@@ -174,12 +175,12 @@ class ProfileScreen extends HookWidget {
                               child: PartyTile(party: parties[index]),
                             ),
                           ),
-                          loading: () => MyLoadingWidget(),
+                          loading: () => const MyLoadingWidget(),
                           error: (e, s) => MyErrorWidget(e: e, s: s),
                         )
                       : partyUpcomingPartiesStream.when(
                           data: (parties) => ListView.builder(
-                            physics: BouncingScrollPhysics(),
+                            physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.vertical,
                             itemCount: parties.length,
                             shrinkWrap: true,
@@ -190,7 +191,7 @@ class ProfileScreen extends HookWidget {
                               child: PartyTile(party: parties[index]),
                             ),
                           ),
-                          loading: () => MyLoadingWidget(),
+                          loading: () => const MyLoadingWidget(),
                           error: (e, s) => MyErrorWidget(e: e, s: s),
                         ),
             ),

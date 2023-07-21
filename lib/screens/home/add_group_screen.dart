@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -14,30 +13,30 @@ import 'package:party/widgets/friend_tile.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
 
-class AddGroupScreen extends HookWidget {
-  const AddGroupScreen({Key key}) : super(key: key);
+class AddGroupScreen extends HookConsumerWidget {
+  const AddGroupScreen({super.key});
 
   static const routeName = '/add_group';
 
   @override
-  Widget build(BuildContext context) {
-    final group = useProvider(groupProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final group = ref.watch(groupProvider);
     final controllerName = useTextEditingController();
-    final friendFriendsStream = useProvider(friendFriendsStreamProvider);
-    final groupMembersUids = useProvider(groupMembersUidsProvider);
+    final friendFriendsStream = ref.watch(friendFriendsStreamProvider);
+    final groupMembersUids = ref.watch(groupMembersUidsProvider);
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: Scaffold(
-        backgroundColor: dark,
+        backgroundColor: MyColors.dark,
         appBar: AppBar(
-          leading: CustomCloseButton(),
+          leading: const CustomCloseButton(),
           centerTitle: true,
-          title: Text(
+          title: const Text(
             'New Group',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 30,
-              color: white,
+              color: MyColors.white,
             ),
           ),
         ),
@@ -45,15 +44,15 @@ class AddGroupScreen extends HookWidget {
           children: [
             CustomTextField(
               text: 'name',
-              color: black,
+              color: MyColors.black,
               textEditingController: controllerName,
             ),
-            Container(
+            SizedBox(
               height: 141,
               child: friendFriendsStream.when(
                 data: (friends) => ListView.builder(
                   cacheExtent: 10000,
-                  physics: BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   scrollDirection: Axis.horizontal,
                   itemCount: friends.length,
                   itemBuilder: (context, index) => FriendTile(
@@ -62,7 +61,7 @@ class AddGroupScreen extends HookWidget {
                     isForParty: false,
                   ),
                 ),
-                loading: () => MyLoadingWidget(),
+                loading: () => const MyLoadingWidget(),
                 error: (e, s) => MyErrorWidget(e: e, s: s),
               ),
             ),
@@ -73,10 +72,10 @@ class AddGroupScreen extends HookWidget {
                       if (controllerName.text.isEmpty) {
                         group.error = 'Well, you have to enter a name';
                       }
-                      await context.read(groupProvider).addGroup(
+                      await ref.read(groupProvider).addGroup(
                             imgUrl: '',
                             name: controllerName.text,
-                            membersUids: groupMembersUids.state,
+                            membersUids: groupMembersUids,
                           );
                       showActionDialog(
                         ctx: context,
@@ -88,12 +87,15 @@ class AddGroupScreen extends HookWidget {
                       );
                       if (group.error == '') {
                         controllerName.text = '';
-                        context.read(groupMembersUidsProvider).state.clear();
+                        ref
+                            .read(groupMembersUidsProvider.notifier)
+                            .state
+                            .clear();
                       }
                     },
                     text: 'Create Group',
                   )
-                : MyLoadingWidget(),
+                : const MyLoadingWidget(),
           ],
         ),
       ),

@@ -1,29 +1,21 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/models/friend.dart';
+import 'package:party/models/service_data.dart';
 import 'package:party/services/friend_service.dart';
 
-import 'auth_provider.dart';
-
-final friendProvider = ChangeNotifierProvider<FriendService>((ref) {
-  final auth = ref?.watch(authStateChangesProvider);
-  if (auth?.data?.value?.uid != null) {
-    return FriendService(
-      uid: auth?.data?.value?.uid,
-    );
-  }
-  return null;
-});
+final friendProvider =
+    NotifierProvider<FriendService, ServiceData>(() => FriendService());
 
 final friendFriendsStreamProvider =
     StreamProvider.autoDispose<List<Friend>>((ref) {
-  final friend = ref?.watch(friendProvider);
-  ref.maintainState = true;
-  return friend?.friendsStream() ?? const Stream.empty();
+  final friend = ref.watch(friendProvider.notifier);
+  ref.keepAlive();
+  return friend.friendsStream() ?? const Stream.empty();
 });
 
 final friendFriendsFutureProvider =
-    FutureProvider.autoDispose<List<Friend>>((ref) {
-  final friend = ref?.watch(friendProvider);
-  ref.maintainState = true;
-  return friend?.friendsFuture() ?? const Stream.empty();
+    FutureProvider.autoDispose<List<Friend>?>((ref) {
+  final friend = ref.watch(friendProvider.notifier);
+  ref.keepAlive();
+  return friend.friendsFuture() ?? const Stream.empty();
 });

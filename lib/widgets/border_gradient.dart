@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:party/constants/colors.dart';
 
 class BorderGradient extends StatelessWidget {
-  const BorderGradient({Key key, this.child}) : super(key: key);
+  const BorderGradient({
+    super.key,
+    required this.child,
+  });
 
   final Widget child;
 
@@ -12,11 +15,11 @@ class BorderGradient extends StatelessWidget {
       padding: const EdgeInsets.all(1),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
-            blue,
-            purple,
-            red,
+            MyColors.blue,
+            MyColors.purple,
+            MyColors.red,
           ],
           tileMode: TileMode.clamp,
           begin: Alignment.topLeft,

@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,32 +19,29 @@ import 'package:party/widgets/message_layout.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
 
-class FriendScreen extends HookWidget {
-  const FriendScreen({
-    Key key,
-  }) : super(key: key);
+class FriendScreen extends HookConsumerWidget {
+  const FriendScreen({super.key});
 
   static const routeName = '/friend_screen';
 
   @override
-  Widget build(BuildContext context) {
-    final messageData = useProvider(messageDataProvider);
-    String uid;
-    switch (messageData.state.runtimeType) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final messageData = ref.watch(messageDataProvider);
+    String? uid;
+    switch (messageData.runtimeType) {
       case Friend:
-        uid = messageData.state.uid;
+        uid = messageData.uid;
         break;
       case Group:
-        uid = messageData.state.id;
+        uid = messageData.id;
         break;
       case Party:
-        uid = messageData.state.id;
+        uid = messageData.id;
         break;
     }
-    final messageMessagesStream =
-        useProvider(messageMessagesStreamProvider(uid));
+    final messageMessagesStream = ref.watch(messageMessagesStreamProvider(uid));
     final controllerMessage = useTextEditingController();
-    final authStateChanges = useProvider(authStateChangesProvider);
+    final authStateChanges = ref.watch(authStateChangesProvider);
     return GestureDetector(
       onTap: FocusScope.of(context).unfocus,
       child: BackgroundGradient(
@@ -53,20 +49,20 @@ class FriendScreen extends HookWidget {
           extendBodyBehindAppBar: true,
           appBar: GlassAppBar(
             child: AppBar(
-              leading: CustomBackButton(),
+              leading: const CustomBackButton(),
               title: Text(
                 messageData.state.name,
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 30,
-                  color: white,
+                  color: MyColors.white,
                 ),
               ),
               actions: [
                 IconButton(
-                    icon: Icon(
+                    icon: const Icon(
                       CupertinoIcons.phone,
-                      color: white,
+                      color: MyColors.white,
                     ),
                     onPressed: () {}),
               ],
@@ -78,7 +74,7 @@ class FriendScreen extends HookWidget {
               messageMessagesStream.when(
                 data: (messages) => uid != null
                     ? ListView.builder(
-                        physics: BouncingScrollPhysics(),
+                        physics: const BouncingScrollPhysics(),
                         reverse: true,
                         padding: EdgeInsets.only(
                             bottom: 70,
@@ -86,27 +82,27 @@ class FriendScreen extends HookWidget {
                                 AppBar().preferredSize.height),
                         itemCount: messages.length,
                         itemBuilder: (ctx, index) {
-                          final bool isMe = authStateChanges.data.value.uid ==
+                          final bool isMe = authStateChanges.value!.uid ==
                               messages[index].uidFrom;
                           return MessageLayout(
                               isMe: isMe, message: messages[index]);
                         },
                       )
-                    : Center(child: Text('You can not messge Mr Bean')),
-                loading: () => MyLoadingWidget(),
+                    : const Center(child: Text('You can not messge Mr Bean')),
+                loading: () => const MyLoadingWidget(),
                 error: (e, s) => MyErrorWidget(e: e, s: s),
               ),
               Positioned(
                 bottom: 0,
                 child: Material(
                   elevation: 10,
-                  color: black,
-                  borderRadius: BorderRadius.only(
+                  color: MyColors.black,
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(32),
                     topRight: Radius.circular(32),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
@@ -114,12 +110,12 @@ class FriendScreen extends HookWidget {
                     child: Container(
                       height: 70,
                       width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
                         ),
-                        color: dark,
+                        color: MyColors.dark,
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -129,11 +125,13 @@ class FriendScreen extends HookWidget {
                             child: CustomTextField(
                               text: 'say something',
                               textEditingController: controllerMessage,
-                              color: black,
+                              color: MyColors.black,
                               margin: 10,
                               borderRadius: 20,
                               onSubmitted: (value) async {
-                                await context.read(messageProvider).addMessage(
+                                await ref
+                                    .read(messageProvider.notifier)
+                                    .addMessage(
                                       uidTo: uid,
                                       message: value,
                                     );
@@ -147,11 +145,11 @@ class FriendScreen extends HookWidget {
                             margin: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: blue.withOpacity(0.2),
+                              color: MyColors.blue.withOpacity(0.2),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               CupertinoIcons.photo_camera,
-                              color: blue,
+                              color: MyColors.blue,
                             ),
                           ),
                           Container(
@@ -160,17 +158,19 @@ class FriendScreen extends HookWidget {
                             margin: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: blue.withOpacity(0.2),
+                              color: MyColors.blue.withOpacity(0.2),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               CupertinoIcons.photo,
-                              color: blue,
+                              color: MyColors.blue,
                             ),
                           ),
                           GestureDetector(
                             onTap: () async {
                               if (uid != null) {
-                                await context.read(messageProvider).addMessage(
+                                await ref
+                                    .read(messageProvider.notifier)
+                                    .addMessage(
                                       uidTo: uid,
                                       message: controllerMessage.text,
                                     );
@@ -188,16 +188,16 @@ class FriendScreen extends HookWidget {
                               ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
-                                color: blue.withOpacity(0.2),
+                                color: MyColors.blue.withOpacity(0.2),
                               ),
                               padding: const EdgeInsets.all(0),
                               child: Transform.translate(
                                 offset: const Offset(-2, 0),
                                 child: Transform.rotate(
                                   angle: pi / 4,
-                                  child: Icon(
+                                  child: const Icon(
                                     CupertinoIcons.paperplane,
-                                    color: blue,
+                                    color: MyColors.blue,
                                   ),
                                 ),
                               ),

@@ -13,32 +13,32 @@ import 'package:party/widgets/custom_text_field.dart';
 import 'package:party/widgets/temp/my_error_widget.dart';
 import 'package:party/widgets/temp/my_loading_widget.dart';
 
-class AddFriendScreen extends HookWidget {
-  const AddFriendScreen({
-    Key key,
-  }) : super(key: key);
+class AddFriendScreen extends HookConsumerWidget {
+  const AddFriendScreen({super.key});
+
   static const routeName = '/add_friend';
+
   @override
-  Widget build(BuildContext context) {
-    final userUsersFuture = useProvider(userUsersFutureProvider);
-    final userRequestStream = useProvider(userRequestStreamProvider);
-    final isRequest = useProvider(isRequestProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userUsersFuture = ref.watch(userUsersFutureProvider);
+    final userRequestStream = ref.watch(userRequestStreamProvider);
+    final isRequest = ref.watch(isRequestProvider);
     final height = useState<double>(90);
     final opacity = useState<double>(1);
-    return Container(
+    return SizedBox(
       height: 550,
       child: GestureDetector(
         onTap: FocusScope.of(context).unfocus,
         child: Scaffold(
           appBar: AppBar(
-            leading: CustomCloseButton(),
+            leading: const CustomCloseButton(),
             centerTitle: true,
-            title: Text(
+            title: const Text(
               'Add New Friend',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 30,
-                color: white,
+                color: MyColors.white,
               ),
             ),
           ),
@@ -51,7 +51,7 @@ class AddFriendScreen extends HookWidget {
                 children: [
                   CustomButton(
                     onTap: () {
-                      context.read(isRequestProvider).state = false;
+                      ref.read(isRequestProvider.notifier).state = false;
                       height.value = 90;
                       opacity.value = 1;
                     },
@@ -59,7 +59,7 @@ class AddFriendScreen extends HookWidget {
                   ),
                   CustomButton(
                     onTap: () {
-                      context.read(isRequestProvider).state = true;
+                      ref.read(isRequestProvider.notifier).state = true;
                       height.value = 0;
                       opacity.value = 0;
                       FocusScope.of(context).unfocus();
@@ -70,32 +70,32 @@ class AddFriendScreen extends HookWidget {
               ),
               AnimatedOpacity(
                 opacity: opacity.value,
-                duration: Duration(milliseconds: 100),
+                duration: const Duration(milliseconds: 100),
                 curve: Curves.easeIn,
                 child: AnimatedContainer(
-                  duration: Duration(milliseconds: 100),
+                  duration: const Duration(milliseconds: 100),
                   curve: Curves.easeIn,
                   height: height.value,
                   child: CustomTextField(
                     text: 'search',
-                    color: black,
+                    color: MyColors.black,
                     icon: CupertinoIcons.search,
                     onChanged: (String val) =>
-                        context.read(friendsSearchProvider).state = val,
+                        ref.read(friendsSearchProvider.notifier).state = val,
                   ),
                 ),
               ),
-              if (isRequest.state) const SizedBox(height: 20),
+              if (isRequest) const SizedBox(height: 20),
               Expanded(
-                child: isRequest.state
+                child: isRequest
                     ? userRequestStream.when(
                         data: buildGridView,
-                        loading: () => MyLoadingWidget(),
+                        loading: () => const MyLoadingWidget(),
                         error: (e, s) => MyErrorWidget(e: e, s: s),
                       )
                     : userUsersFuture.when(
                         data: buildGridView,
-                        loading: () => MyLoadingWidget(),
+                        loading: () => const MyLoadingWidget(),
                         error: (e, s) => MyErrorWidget(e: e, s: s),
                       ),
               ),
@@ -108,8 +108,8 @@ class AddFriendScreen extends HookWidget {
 
   GridView buildGridView(List<Friend> users) {
     return GridView.builder(
-      physics: BouncingScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      physics: const BouncingScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 2.5,
         crossAxisSpacing: 14,
@@ -120,7 +120,7 @@ class AddFriendScreen extends HookWidget {
         return AddFriendTile(
           isLeft: index % 2 == 0,
           friend: users[index],
-          color: dark,
+          color: MyColors.dark,
         );
       },
     );

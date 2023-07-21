@@ -3,14 +3,19 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:party/constants/colors.dart';
 
 class CustomButton extends HookWidget {
-  const CustomButton({Key key, this.onTap, this.text}) : super(key: key);
+  const CustomButton({
+    super.key,
+    required this.onTap,
+    required this.text,
+  });
+
   final Function onTap;
   final String text;
 
   @override
   Widget build(BuildContext context) {
     final animationController =
-        useAnimationController(duration: Duration(milliseconds: 10));
+        useAnimationController(duration: const Duration(milliseconds: 10));
     final padding = useState<double>(0.0);
 
     return GestureDetector(
@@ -40,9 +45,10 @@ class CustomButton extends HookWidget {
 
 class AnimatedCustomButton extends AnimatedWidget {
   const AnimatedCustomButton({
+    super.key,
     AnimationController controller,
-    this.text,
-    this.padding,
+    required this.text,
+    required this.padding,
   }) : super(listenable: controller);
 
   final String text;
@@ -56,25 +62,26 @@ class AnimatedCustomButton extends AnimatedWidget {
       padding: const EdgeInsets.all(0.6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15.6),
-        color: blue,
+        color: MyColors.blue,
       ),
       child: Material(
         elevation: animation.value,
         borderRadius: BorderRadius.circular(15),
-        color: black,
+        color: MyColors.black,
         child: AnimatedContainer(
-          duration: Duration(milliseconds: 10),
+          duration: const Duration(milliseconds: 10),
           padding: EdgeInsets.symmetric(
             vertical: 10 - padding,
             horizontal: 15 - padding,
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            color: blue.withOpacity(0.2),
+            color: MyColors.blue.withOpacity(0.2),
           ),
           child: Text(
             text,
-            style: TextStyle(color: blue, fontWeight: FontWeight.w700),
+            style: const TextStyle(
+                color: MyColors.blue, fontWeight: FontWeight.w700),
           ),
         ),
       ),

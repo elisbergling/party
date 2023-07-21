@@ -1,27 +1,21 @@
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:party/services/service_notifier.dart';
 
-class ImageService with ChangeNotifier {
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
-  String _error = '';
-  String get error => _error;
-
+class ImageService extends ServiceNotifier {
   Future<void> uploadFile(
     String uid,
     ImageSource imageSource,
   ) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       Reference ref = FirebaseStorage.instance.ref().child(uid);
-      PickedFile file = await ImagePicker().getImage(source: imageSource);
+      XFile? file = await ImagePicker().pickImage(source: imageSource);
       if (file == null) {
         print("No file was selected");
-        return null;
+        return;
       }
       ref.putFile(File(file.path));
       //     .then((_) async => await ProviderContainer()
@@ -33,34 +27,26 @@ class ImageService with ChangeNotifier {
       //       'stackTrace: ' +
       //       stackTrace.toString());
       //   _error = error.toString();
-      //   notifyListeners();
       // });
     } catch (e) {
-      print(e.toString());
-      _error = e.toString();
-      notifyListeners();
-      return null;
+      setError(e);
+      return;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 
-  Future<String> getDownloadUrl(String uid) async {
+  Future<String?> getDownloadUrl(String uid) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      toggleLoading();
       Reference ref = FirebaseStorage.instance.ref().child(uid);
       String url = await ref.getDownloadURL();
       return url;
     } catch (e) {
-      print(e.message);
-      _error = e.message;
-      notifyListeners();
+      setError(e);
       return null;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      toggleLoading();
     }
   }
 }

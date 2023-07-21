@@ -6,10 +6,10 @@ class LocationInfo {
   String postalCode;
 
   LocationInfo({
-    this.address,
-    this.country,
-    this.latitude,
-    this.longitude,
-    this.postalCode,
+    required this.address,
+    required this.country,
+    required this.latitude,
+    required this.longitude,
+    required this.postalCode,
   });
 }
