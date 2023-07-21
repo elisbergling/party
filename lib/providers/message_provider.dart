@@ -12,6 +12,8 @@ final messageMessagesStreamProvider =
   ref.keepAlive();
   if (uidTo != null) {
     return message.messagesStream(uidTo: uidTo) ?? const Stream.empty();
+  } else {
+    return const Stream.empty();
   }
 });
 
@@ -23,8 +25,12 @@ final messageLastMessageStreamProvider =
 });
 
 final messageLastMessageFutureProvider =
-    FutureProvider.autoDispose.family<Message?, String>((ref, uidTo) {
+    FutureProvider.autoDispose.family<Message?, String>((ref, uidTo) async {
   final message = ref.watch(messageProvider.notifier);
   ref.keepAlive();
-  return message.lastMessageFuture(uidTo: uidTo) ?? const Stream.empty();
+  try {
+    return await message.lastMessageFuture(uidTo: uidTo);
+  } catch (e) {
+    return null;
+  }
 });

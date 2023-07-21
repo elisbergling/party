@@ -36,13 +36,13 @@ class PartyTile extends HookConsumerWidget {
       onTapDown: (_) => !isOnMap ? controller.forward() : null,
       onTapUp: (_) => !isOnMap ? controller.reverse() : null,
       onTap: !isOnMap
-          ? () => navigate(context)
+          ? () => navigate(context, ref)
           : () async {
-              await map.mapController.animateCamera(
+              await map.controller!.animateCamera(
                 CameraUpdate.newCameraPosition(
                   CameraPosition(
                     target: party.latitude != null
-                        ? LatLng(party.latitude, party.longitude)
+                        ? LatLng(party.latitude!, party.longitude!)
                         : const LatLng(24.150, -110.32),
                     zoom: 16,
                   ),
@@ -52,7 +52,7 @@ class PartyTile extends HookConsumerWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 7, horizontal: 14),
         child: AnimatedPartyTile(
-          controller: controller,
+          animation: Tween<double>(begin: 1.0, end: 0.0).animate(controller),
           isOnMap: isOnMap,
           party: party,
         ),
@@ -64,14 +64,13 @@ class PartyTile extends HookConsumerWidget {
 class AnimatedPartyTile extends AnimatedWidget {
   const AnimatedPartyTile({
     super.key,
-    required AnimationController controller,
+    required Animation<double> animation,
     required this.isOnMap,
     required this.party,
-  }) : super(listenable: controller);
+  }) : super(listenable: animation);
 
   final bool isOnMap;
   final Party party;
-  AnimationController get controller => super.listenable;
 
   void navigate(BuildContext context, WidgetRef ref) {
     ref.read(partyDataProvider.notifier).state = party;
@@ -80,7 +79,7 @@ class AnimatedPartyTile extends AnimatedWidget {
 
   @override
   Widget build(BuildContext context) {
-    final animation = Tween<double>(begin: 1.0, end: 0.0).animate(controller);
+    final Animation<double> animation = listenable as Animation<double>;
     return BorderGradient(
       child: Material(
         elevation: animation.value,

@@ -22,15 +22,17 @@ class MapDialog extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final marker = useState<Marker>(Marker(
-      markerId: MarkerId(
-        coords.latitude.toString() + coords.longitude.toString(),
-      ),
-      position: coords,
-      icon: BitmapDescriptor.defaultMarkerWithHue(
-        BitmapDescriptor.hueCyan,
-      ),
-    ));
+    final marker = useState<Marker?>(shouldAdd
+        ? null
+        : Marker(
+            markerId: MarkerId(
+              coords!.latitude.toString() + coords!.longitude.toString(),
+            ),
+            position: coords!,
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueCyan,
+            ),
+          ));
     final locationInfo = ref.watch(locationInfoProvider);
     final height = MediaQuery.of(context).size.height;
     return Container(
@@ -56,11 +58,11 @@ class MapDialog extends HookConsumerWidget {
                         initialCameraPosition: CameraPosition(
                           target: shouldAdd
                               ? const LatLng(24.150, -110.32)
-                              : coords,
+                              : coords!,
                           zoom: shouldAdd ? 1 : 16,
                         ),
                         onMapCreated: (controller) async => await ref
-                            .read(mapProvider)
+                            .read(mapProvider.notifier)
                             .onMapCreated(controller),
                         onTap: shouldAdd
                             ? (pos) async {
@@ -74,21 +76,21 @@ class MapDialog extends HookConsumerWidget {
                                       BitmapDescriptor.hueCyan),
                                 );
                                 LocationInfo locationInfo = await ref
-                                    .read(mapProvider)
+                                    .read(mapProvider.notifier)
                                     .getLocationInfo(pos);
                                 ref.read(locationInfoProvider.notifier).state =
                                     locationInfo;
                               }
                             : (pos) {},
                         markers: shouldAdd
-                            ? {if (marker.value != null) marker.value}
+                            ? {if (marker.value != null) marker.value!}
                             : {
                                 Marker(
                                   markerId: MarkerId(
-                                    coords.latitude.toString() +
-                                        coords.longitude.toString(),
+                                    coords!.latitude.toString() +
+                                        coords!.longitude.toString(),
                                   ),
-                                  position: coords,
+                                  position: coords!,
                                   icon: BitmapDescriptor.defaultMarkerWithHue(
                                     BitmapDescriptor.hueCyan,
                                   ),
@@ -133,7 +135,7 @@ class MapDialog extends HookConsumerWidget {
                         ? locationInfo != null
                             ? locationInfo.address
                             : 'Click on Map to choose location'
-                        : adress,
+                        : adress!,
                     maxLines: 1,
                     softWrap: true,
                     overflow: TextOverflow.ellipsis,

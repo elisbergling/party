@@ -52,17 +52,17 @@ class MapScreen extends HookConsumerWidget {
               trafficEnabled: true,
               initialCameraPosition: CameraPosition(
                   target: parties[0].latitude != null
-                      ? LatLng(parties[0].latitude, parties[0].longitude)
+                      ? LatLng(parties[0].latitude!, parties[0].longitude!)
                       : const LatLng(24.150, -110.32),
                   zoom: 10),
               onMapCreated: (controller) =>
-                  ref.read(mapProvider).onMapCreated(controller),
+                  ref.read(mapProvider.notifier).onMapCreated(controller),
               markers: parties
                   .map(
                     (party) => Marker(
                       markerId: MarkerId(party.id),
                       position: party.latitude != null
-                          ? LatLng(party.latitude, party.longitude)
+                          ? LatLng(party.latitude!, party.longitude!)
                           : const LatLng(24.150, -110.32),
                       icon: BitmapDescriptor.defaultMarkerWithHue(
                         BitmapDescriptor.hueCyan,

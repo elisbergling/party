@@ -35,7 +35,7 @@ class CustomButton extends HookWidget {
         // animationController.forward();
       },
       child: AnimatedCustomButton(
-        controller: animationController,
+        animation: Tween(begin: 10.0, end: 2.0).animate(animationController),
         text: text,
         padding: padding.value,
       ),
@@ -46,18 +46,17 @@ class CustomButton extends HookWidget {
 class AnimatedCustomButton extends AnimatedWidget {
   const AnimatedCustomButton({
     super.key,
-    AnimationController controller,
+    required Animation<double> animation,
     required this.text,
     required this.padding,
-  }) : super(listenable: controller);
+  }) : super(listenable: animation);
 
   final String text;
   final double padding;
-  AnimationController get controller => listenable;
 
   @override
   Widget build(BuildContext context) {
-    final animation = Tween(begin: 10.0, end: 2.0).animate(controller);
+    final Animation<double> animation = listenable as Animation<double>;
     return Container(
       padding: const EdgeInsets.all(0.6),
       decoration: BoxDecoration(

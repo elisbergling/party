@@ -4,10 +4,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/constants/global.dart';
 import 'package:party/models/party.dart';
+import 'package:party/models/service_data.dart';
 import 'package:party/providers/auth_provider.dart';
 import 'package:party/providers/party_provider.dart';
 import 'package:party/providers/state_provider.dart';
-import 'package:party/services/party_service.dart';
 import 'package:party/widgets/add_friend_tile.dart';
 import 'package:party/widgets/background_gradient.dart';
 import 'package:party/widgets/border_gradient.dart';
@@ -23,15 +23,41 @@ class PartyScreen extends HookConsumerWidget {
 
   static const routeName = '/party';
 
+  CustomButton buildCustomButton(
+    BuildContext context,
+    Party partyData,
+    ServiceData party,
+    WidgetRef ref,
+  ) {
+    return CustomButton(
+      onTap: () async {
+        await ref
+            .read(partyProvider.notifier)
+            .joinOrUnjoinParty(party: partyData);
+
+        showActionDialog(
+          ctx: context,
+          onPressed: () => ref.read(partyProvider.notifier).setError(''),
+          message: party.error,
+          title: party.error == ''
+              ? 'Joined Party Sucessfully'
+              : 'Something went wrong',
+        );
+        Navigator.of(context).pop();
+      },
+      text: 'join party',
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final uid = ref.watch(authProvider).auth.currentUser.uid;
+    final uid = ref.watch(authProvider.notifier).auth.currentUser!.uid;
     final party = ref.watch(partyProvider);
-    final partyData = ref.watch(partyDataProvider);
+    final partyData = ref.watch(partyDataProvider)!;
     LatLng coords;
-    partyData == null
+    partyData.latitude == null
         ? coords = const LatLng(24.150, -110.32)
-        : coords = LatLng(partyData.latitude, partyData.longitude);
+        : coords = LatLng(partyData.latitude!, partyData.longitude!);
     final partyComingStream = ref.watch(partyComingStreamProvider(partyData));
     return BackgroundGradient(
       child: Scaffold(
@@ -127,8 +153,8 @@ class PartyScreen extends HookConsumerWidget {
                               Text(
                                 partyData.address == null
                                     ? 'adress'
-                                    : partyData.address.split(',')[0],
-                                style: const TextStyle(color: grey),
+                                    : partyData.address!.split(',')[0],
+                                style: const TextStyle(color: MyColors.grey),
                               ),
                               CustomButton(
                                 text: 'View on Map',
@@ -161,7 +187,7 @@ class PartyScreen extends HookConsumerWidget {
               ),
               partyComingStream.when(
                 data: (coming) {
-                  if (coming.length == 0) {
+                  if (coming.isEmpty) {
                     return Column(children: [
                       const Text(
                         'No one is coming yet',
@@ -169,7 +195,7 @@ class PartyScreen extends HookConsumerWidget {
                       ),
                       const SizedBox(height: 10),
                       !party.isLoading
-                          ? buildCustomButton(context, partyData, party)
+                          ? buildCustomButton(context, partyData, party, ref)
                           : const MyLoadingWidget(),
                     ]);
                   } else {
@@ -205,7 +231,7 @@ class PartyScreen extends HookConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                         !coming.any((element) => element.uid == uid)
-                            ? buildCustomButton(context, partyData, party)
+                            ? buildCustomButton(context, partyData, party, ref)
                             : party.isLoading
                                 ? const MyLoadingWidget()
                                 : Container(),
@@ -222,27 +248,6 @@ class PartyScreen extends HookConsumerWidget {
           ),
         ),
       ),
-    );
-  }
-
-  CustomButton buildCustomButton(BuildContext context,
-      StateController<Party> partyData, PartyService party) {
-    return CustomButton(
-      onTap: () async {
-        await context
-            .read(partyProvider)
-            .joinOrUnjoinParty(party: partyData.state);
-        showActionDialog(
-          ctx: context,
-          service: party,
-          message: party.error,
-          title: party.error == ''
-              ? 'Joined Party Sucessfully'
-              : 'Something went wrong',
-        );
-        Navigator.of(context).pop();
-      },
-      text: 'join party',
     );
   }
 }

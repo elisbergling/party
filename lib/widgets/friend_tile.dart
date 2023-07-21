@@ -95,7 +95,6 @@ class FriendTile extends HookConsumerWidget {
                           iconSize: 24,
                           onPressed: () {
                             isSelected.value = !isSelected.value;
-
                             if (isForParty) {
                               if (invitedUids.any((uid) => uid == friend.uid)) {
                                 ref

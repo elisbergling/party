@@ -1,44 +1,48 @@
-import 'package:flutter/material.dart';
-import 'package:geocoder/geocoder.dart' as geoCo;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/models/location_info.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:party/models/map_service_data.dart';
 
-class MapService with ChangeNotifier {
-  GoogleMapController _mapController;
-  GoogleMapController get mapController => _mapController;
-
-  set mapController(mapController) => _mapController = mapController;
-
-  Marker _marker;
-  Marker get marker => _marker;
-
-  Position _position;
-  Position get position => _position;
+class MapService extends Notifier<MapServiceData> {
+  @override
+  MapServiceData build() {
+    return const MapServiceData(
+      controller: null,
+      marker: null,
+      position: null,
+    );
+  }
 
   Future onMapCreated(GoogleMapController controller) async {
-    _mapController = controller;
+    state = state.copyWith(controller: controller);
     final mapStyle = await rootBundle.loadString('assets/map_style.json');
-    await _mapController.setMapStyle(mapStyle);
+    await state.controller!.setMapStyle(mapStyle);
     await getCurrentLocation();
-    notifyListeners();
   }
 
   Future getCurrentLocation() async {
-    _position = await GeolocatorPlatform.instance.getCurrentPosition();
-    notifyListeners();
+    final position = await GeolocatorPlatform.instance.getCurrentPosition();
+    state = state.copyWith(position: position);
   }
 
   Future<LocationInfo> getLocationInfo(LatLng pos) async {
-    final coords = geoCo.Coordinates(pos.latitude, pos.longitude);
-    final adress =
-        await geoCo.Geocoder.local.findAddressesFromCoordinates(coords);
-    final info = adress.first;
+    const apiKey = 'å';
+    final url =
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${pos.latitude},${pos.longitude}&key=$apiKey';
+    final response = await http.get(Uri.parse(url));
+    final data = jsonDecode(response.body);
+
+    final info =
+        data['results'][0]['address_components'][0]; //this is probablly wrong
     return LocationInfo(
-      address: info.addressLine,
-      country: info.countryName,
-      postalCode: info.postalCode,
+      address: info.addressLine ?? 'No Adress Found',
+      country: info.countryName ?? 'No Country Found',
+      postalCode: info.postalCode ?? 'No Postal Code Found',
       latitude: pos.latitude,
       longitude: pos.longitude,
     );
@@ -61,7 +65,6 @@ class MapService with ChangeNotifier {
       position: LatLng(lat, long),
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
     );
-    _marker = marker;
-    notifyListeners();
+    state = state.copyWith(marker: marker);
   }
 }

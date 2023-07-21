@@ -25,11 +25,15 @@ final userUsersStreamProvider = StreamProvider.autoDispose<List<Friend>>((ref) {
 });
 
 final userUsersFutureProvider =
-    FutureProvider.autoDispose<List<Friend>>((ref) async {
+    FutureProvider.autoDispose<List<Friend>?>((ref) async {
   final user = ref.watch(userProvider.notifier);
   final name = ref.watch(friendsSearchProvider);
   ref.keepAlive();
-  return await user.usersFuture(name: name) ?? const Stream.empty();
+  try {
+    return await user.usersFuture(name: name);
+  } catch (e) {
+    return null;
+  }
 });
 
 final userRequestStreamProvider =

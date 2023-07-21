@@ -26,7 +26,7 @@ class CachedImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     try {
-      if (imageUrl != null && imageUrl != '') {
+      if (imageUrl != '') {
         return Container(
           height: height,
           width: width,
@@ -73,19 +73,17 @@ class CachedImage extends StatelessWidget {
           end: Alignment.topRight,
         ),
       ),
-      child: name != null
-          ? Center(
-              child: Text(
-                name.split('')[0],
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: textColor ?? MyColors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: height / 2.2,
-                ),
-              ),
-            )
-          : const SizedBox(height: 0.0, width: 0.0),
+      child: Center(
+        child: Text(
+          name.split('')[0],
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: textColor ?? MyColors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: height / 2.2,
+          ),
+        ),
+      ),
     );
   }
 }

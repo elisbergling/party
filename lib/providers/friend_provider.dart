@@ -14,8 +14,12 @@ final friendFriendsStreamProvider =
 });
 
 final friendFriendsFutureProvider =
-    FutureProvider.autoDispose<List<Friend>?>((ref) {
+    FutureProvider.autoDispose<List<Friend>?>((ref) async {
   final friend = ref.watch(friendProvider.notifier);
   ref.keepAlive();
-  return friend.friendsFuture() ?? const Stream.empty();
+  try {
+    return await friend.friendsFuture();
+  } catch (e) {
+    return null;
+  }
 });

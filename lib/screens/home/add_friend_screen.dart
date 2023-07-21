@@ -94,7 +94,9 @@ class AddFriendScreen extends HookConsumerWidget {
                         error: (e, s) => MyErrorWidget(e: e, s: s),
                       )
                     : userUsersFuture.when(
-                        data: buildGridView,
+                        data: (data) => data != null
+                            ? buildGridView(data)
+                            : throw Exception(),
                         loading: () => const MyLoadingWidget(),
                         error: (e, s) => MyErrorWidget(e: e, s: s),
                       ),

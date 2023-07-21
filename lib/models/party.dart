@@ -15,9 +15,9 @@ class Party {
   String hostUid;
   List<String> comingUids;
   List<String> invitedUids;
-  double latitude;
-  double longitude;
-  String address;
+  double? latitude;
+  double? longitude;
+  String? address;
   String country;
   String postalCode;
 

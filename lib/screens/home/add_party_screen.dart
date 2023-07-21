@@ -172,23 +172,25 @@ class AddPartyScreen extends HookConsumerWidget {
                                 about: controllerAbout.text,
                                 imgUrl: '',
                                 name: controllerName.text,
-                                price: controllerPrice.text != null &&
-                                        controllerPrice.text != ''
-                                    ? int.parse(controllerPrice.text.trim())
-                                    : null,
-                                time: Timestamp.fromDate(
-                                  partyDate.add(
-                                    Duration(
-                                      hours: partyTimeOfDay.hour,
-                                      minutes: partyTimeOfDay.minute,
-                                    ),
-                                  ),
-                                ),
+                                price:
+                                    int.tryParse(controllerPrice.text.trim()),
+                                time:
+                                    partyDate != null && partyTimeOfDay != null
+                                        ? Timestamp.fromDate(
+                                            partyDate.add(
+                                              Duration(
+                                                hours: partyTimeOfDay.hour,
+                                                minutes: partyTimeOfDay.minute,
+                                              ),
+                                            ),
+                                          )
+                                        : null,
                                 invitedUids: invitedUids,
                               );
                           showActionDialog(
                             ctx: context,
-                            service: party,
+                            onPressed: () =>
+                                ref.read(partyProvider.notifier).setError(''),
                             message: party.error,
                             title: party.error == ''
                                 ? 'Created Party Sucessfully'

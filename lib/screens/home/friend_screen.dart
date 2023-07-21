@@ -132,7 +132,7 @@ class FriendScreen extends HookConsumerWidget {
                                 await ref
                                     .read(messageProvider.notifier)
                                     .addMessage(
-                                      uidTo: uid,
+                                      uidTo: uid!,
                                       message: value,
                                     );
                                 controllerMessage.clear();

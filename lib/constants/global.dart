@@ -6,7 +6,7 @@ void showActionDialog({
   required String title,
   required String message,
   required BuildContext ctx,
-  required dynamic service,
+  required Function() onPressed,
 }) {
   showDialog(
     context: ctx,
@@ -16,7 +16,7 @@ void showActionDialog({
       actions: [
         TextButton(
           onPressed: () {
-            service.error = '';
+            onPressed;
             Navigator.of(ctx).pop();
           },
           child: const Text('Okay'),

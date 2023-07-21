@@ -6,8 +6,6 @@ import 'package:party/constants/colors.dart';
 import 'package:party/providers/auth_provider.dart';
 import 'package:party/providers/user_provider.dart';
 import 'package:party/providers/state_provider.dart';
-import 'package:party/services/auth_service.dart';
-import 'package:party/services/user_service.dart';
 import 'package:party/widgets/background_gradient.dart';
 import 'package:party/widgets/border_gradient.dart';
 import 'package:party/widgets/custom_button.dart';
@@ -20,9 +18,8 @@ class AuthScreen extends HookConsumerWidget {
   void showErrorDialog({
     required String message,
     required BuildContext ctx,
+    required WidgetRef ref,
     required bool isAuth,
-    required AuthService authService,
-    required UserServiceCreateUser userServiceCreateUser,
   }) {
     showDialog(
       context: ctx,
@@ -33,9 +30,9 @@ class AuthScreen extends HookConsumerWidget {
           TextButton(
             onPressed: () {
               if (isAuth) {
-                authService.setError('');
+                ref.read(authProvider.notifier).setError('');
               } else {
-                userServiceCreateUser.setError('');
+                ref.read(userCreateUserProvider.notifier).setError('');
               }
               Navigator.of(ctx).pop();
             },
@@ -82,7 +79,7 @@ class AuthScreen extends HookConsumerWidget {
                                 text: 'name',
                                 isForm: true,
                                 validator: (value) {
-                                  if (value.isEmpty) {
+                                  if (value == null || value.isEmpty) {
                                     return 'Well, you have to enter a name';
                                   }
                                   return null;
@@ -93,7 +90,7 @@ class AuthScreen extends HookConsumerWidget {
                                 text: 'username',
                                 isForm: true,
                                 validator: (value) {
-                                  if (value.isEmpty) {
+                                  if (value == null || value.isEmpty) {
                                     return 'Username can not be empty!';
                                   } else if (value.contains('\$') ||
                                       value.contains('-') ||
@@ -111,7 +108,9 @@ class AuthScreen extends HookConsumerWidget {
                               text: 'email',
                               isForm: true,
                               validator: (value) {
-                                if (value.isEmpty || !value.contains('@')) {
+                                if (value == null ||
+                                    value.isEmpty ||
+                                    !value.contains('@')) {
                                   return 'Invalid email!';
                                 }
                                 return null;
@@ -124,14 +123,16 @@ class AuthScreen extends HookConsumerWidget {
                               isForm: true,
                               isObscure: true,
                               validator: (value) {
-                                if (value.isEmpty || value.length < 8) {
+                                if (value == null ||
+                                    value.isEmpty ||
+                                    value.length < 8) {
                                   return 'Password is too short, must be atleast 8 characters';
                                 }
                                 return null;
                               },
                               textEditingController: controllerPassword,
                             ),
-                            if (!isLogin.state)
+                            if (!isLogin)
                               CustomTextField(
                                 text: 'confirm password',
                                 isForm: true,
@@ -149,14 +150,14 @@ class AuthScreen extends HookConsumerWidget {
                                 ? const MyLoadingWidget()
                                 : CustomButton(
                                     onTap: () async {
-                                      if (!formKey.currentState.validate()) {
+                                      if (!formKey.currentState!.validate()) {
                                         return;
                                       }
-                                      formKey.currentState.save();
+                                      formKey.currentState!.save();
                                       if (isLogin) {
                                         print('start');
                                         await ref
-                                            .read(authProvider)
+                                            .read(authProvider.notifier)
                                             .loginWithEmail(
                                               email: controllerEmail.text,
                                               password: controllerPassword.text,
@@ -167,23 +168,23 @@ class AuthScreen extends HookConsumerWidget {
                                             ctx: context,
                                             message: auth.error,
                                             isAuth: true,
-                                            authService: auth,
+                                            ref: ref,
                                           );
                                         }
                                         print('finnish');
                                       } else {
-                                        User user = await ref
-                                            .read(authProvider)
+                                        User? user = await ref
+                                            .read(authProvider.notifier)
                                             .signUpWithEmail(
                                               email: controllerEmail.text,
                                               password: controllerPassword.text,
                                             );
-                                        if (auth.error.isNotEmpty) {
+                                        if (user == null) {
                                           showErrorDialog(
                                             ctx: context,
                                             message: auth.error,
                                             isAuth: true,
-                                            authService: auth,
+                                            ref: ref,
                                           );
                                         } else {
                                           await ref
@@ -202,8 +203,7 @@ class AuthScreen extends HookConsumerWidget {
                                               ctx: context,
                                               message: userCreateUser.error,
                                               isAuth: false,
-                                              userServiceCreateUser:
-                                                  userCreateUser,
+                                              ref: ref,
                                             );
                                           }
                                         }

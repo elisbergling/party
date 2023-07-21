@@ -70,16 +70,19 @@ class AddGroupScreen extends HookConsumerWidget {
                 ? CustomButton(
                     onTap: () async {
                       if (controllerName.text.isEmpty) {
-                        group.error = 'Well, you have to enter a name';
+                        ref
+                            .read(groupProvider.notifier)
+                            .setError('Well, you have to enter a name');
                       }
-                      await ref.read(groupProvider).addGroup(
+                      await ref.read(groupProvider.notifier).addGroup(
                             imgUrl: '',
                             name: controllerName.text,
                             membersUids: groupMembersUids,
                           );
                       showActionDialog(
                         ctx: context,
-                        service: group,
+                        onPressed: () =>
+                            ref.read(groupProvider.notifier).setError(''),
                         message: group.error,
                         title: group.error == ''
                             ? 'Created Group Sucessfully'

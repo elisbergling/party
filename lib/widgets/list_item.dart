@@ -82,7 +82,7 @@ class ListItem extends HookConsumerWidget {
         ),
         key: Key(uid),
         child: AnimatedListTile(
-          controller: controller,
+          animation: Tween<double>(begin: 1.0, end: 0.0).animate(controller),
           messageLastMessageStream: messageLastMessageStream,
           object: object,
         ),
@@ -94,14 +94,13 @@ class ListItem extends HookConsumerWidget {
 class AnimatedListTile extends AnimatedWidget {
   const AnimatedListTile({
     super.key,
-    AnimationController controller,
+    required Animation<double> animation,
     required this.messageLastMessageStream,
     required this.object,
-  }) : super(listenable: controller);
+  }) : super(listenable: animation);
 
   final AsyncValue<Message> messageLastMessageStream;
   final Object object;
-  AnimationController get controller => listenable;
 
   Row buildContent(object, BuildContext context, Message? message) {
     return Row(
@@ -179,7 +178,7 @@ class AnimatedListTile extends AnimatedWidget {
 
   @override
   Widget build(BuildContext context) {
-    final animation = Tween<double>(begin: 1.0, end: 0.0).animate(controller);
+    final Animation<double> animation = listenable as Animation<double>;
     return BorderGradient(
       child: Material(
         elevation: animation.value,
