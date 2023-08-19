@@ -24,7 +24,11 @@ class PartyTile extends HookConsumerWidget {
 
   void navigate(BuildContext context, WidgetRef ref) {
     ref.read(partyDataProvider.notifier).state = party;
-    Navigator.of(context).pushReplacementNamed(PartyScreen.routeName);
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const PartyScreen(),
+      ),
+    );
   }
 
   @override
@@ -74,7 +78,11 @@ class AnimatedPartyTile extends AnimatedWidget {
 
   void navigate(BuildContext context, WidgetRef ref) {
     ref.read(partyDataProvider.notifier).state = party;
-    Navigator.of(context).pushReplacementNamed(PartyScreen.routeName);
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const PartyScreen(),
+      ),
+    );
   }
 
   @override

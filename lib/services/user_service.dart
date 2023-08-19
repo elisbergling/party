@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/strings.dart';
 import 'package:party/models/friend.dart';
 import 'package:party/providers/image_provider.dart';
 import 'package:party/services/service_notifier.dart';
-import 'package:party/utils/auth_state_mixin.dart';
 
-class UserService extends ServiceNotifier with AuthState {
+class UserService extends ServiceNotifier {
+  final String? uid = FirebaseAuth.instance.currentUser?.uid;
+
   CollectionReference userCollection =
       FirebaseFirestore.instance.collection(MyStrings.users);
 
@@ -15,7 +17,7 @@ class UserService extends ServiceNotifier with AuthState {
       return userCollection
           .doc(uid)
           .snapshots()
-          .map((map) => Friend?.fromJson(map.data()));
+          .map((map) => Friend.fromJson(map.data()));
     } catch (e) {
       setError(e);
       return null;

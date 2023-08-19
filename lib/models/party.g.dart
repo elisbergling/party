@@ -18,11 +18,11 @@ Party _$PartyFromJson(Map<String, dynamic> json) {
     hostUid: json['hostUid'] as String,
     comingUids: (json['comingUids'] as List).map((e) => e as String).toList(),
     invitedUids: (json['invitedUids'] as List).map((e) => e as String).toList(),
-    latitude: json['latitude'] as double,
-    longitude: json['longitude'] as double,
-    address: json['address'] as String,
-    country: json['country'] as String,
-    postalCode: json['postalCode'] as String,
+    latitude: json['latitude'] as double?,
+    longitude: json['longitude'] as double?,
+    address: json['address'] as String?,
+    country: json['country'] as String?,
+    postalCode: json['postalCode'] as String?,
   );
 }
 

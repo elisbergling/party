@@ -11,35 +11,30 @@ final userCreateUserProvider =
     NotifierProvider<UserServiceCreateUser, ServiceData>(
         () => UserServiceCreateUser());
 
-final userUserStreamProvider = StreamProvider.autoDispose<Friend>((ref) {
+final userUserStreamProvider = StreamProvider<Friend>((ref) {
   final user = ref.watch(userProvider.notifier);
-  ref.keepAlive();
   return user.userStream() ?? const Stream.empty();
 });
 
-final userUsersStreamProvider = StreamProvider.autoDispose<List<Friend>>((ref) {
+final userUsersStreamProvider = StreamProvider<List<Friend>>((ref) {
   final user = ref.watch(userProvider.notifier);
   final name = ref.watch(friendsSearchProvider);
-  ref.keepAlive();
   return user.usersStream(name: name) ?? const Stream.empty();
 });
 
-final userUsersFutureProvider =
-    FutureProvider.autoDispose<List<Friend>?>((ref) async {
+final userUsersFutureProvider = FutureProvider<List<Friend>>((ref) async {
   final user = ref.watch(userProvider.notifier);
   final name = ref.watch(friendsSearchProvider);
-  ref.keepAlive();
-  try {
-    return await user.usersFuture(name: name);
-  } catch (e) {
-    return null;
+  final res = await user.usersFuture(name: name);
+  if (res != null) {
+    return res;
+  } else {
+    return [];
   }
 });
 
-final userRequestStreamProvider =
-    StreamProvider.autoDispose<List<Friend>>((ref) {
+final userRequestStreamProvider = StreamProvider<List<Friend>>((ref) {
   final user = ref.watch(userProvider.notifier);
   final name = ref.watch(friendsSearchProvider);
-  ref.keepAlive();
   return user.requestStream(name: name) ?? const Stream.empty();
 });

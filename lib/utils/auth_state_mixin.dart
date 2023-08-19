@@ -7,6 +7,7 @@ mixin AuthState {
     if (user.value?.uid != null) {
       return user.value!.uid;
     } else {
+      print('THIS ISNT WORKING');
       return 'This should be impossible';
     }
   }

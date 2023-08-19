@@ -65,6 +65,8 @@ class AuthService extends ServiceNotifier {
   Future<User?> signUpWithEmail({
     required String email,
     required String password,
+    required String name,
+    required String username,
   }) async {
     try {
       toggleLoading();
@@ -72,6 +74,19 @@ class AuthService extends ServiceNotifier {
         email: email,
         password: password,
       );
+      if (res.user != null) {
+        await ProviderContainer()
+            .read(userCreateUserProvider.notifier)
+            .createUser(
+              uid: res.user!.uid,
+              email: email,
+              name: name,
+              username: username,
+              imgUrl: '',
+            );
+      } else {
+        throw Exception('User was enexceptedly null');
+      }
       return res.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {

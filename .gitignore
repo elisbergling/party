@@ -42,3 +42,7 @@ app.*.map.json
 
 # Firebase configuration files
 android/app/google-services.json
+
+# Api Keys
+lib/constants/api_keys.dart
+android/app/src/main/res/values/api_keys.xml

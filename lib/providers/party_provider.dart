@@ -8,30 +8,19 @@ final partyProvider = NotifierProvider<PartyService, ServiceData>(() {
   return PartyService();
 });
 
-final partyPartiesStreamProvider =
-    StreamProvider.autoDispose<List<Party>>((ref) {
-  final party = ref.watch(partyProvider.notifier);
-  ref.keepAlive();
-  return party.partiesStream() ?? const Stream.empty();
+final partyPartiesStreamProvider = StreamProvider<List<Party>?>((ref) {
+  return ref.watch(partyProvider.notifier).partiesStream();
 });
 
-final partyMyPartiesStreamProvider =
-    StreamProvider.autoDispose<List<Party>>((ref) {
-  final party = ref.watch(partyProvider.notifier);
-  ref.keepAlive();
-  return party.myPartiesStream() ?? const Stream.empty();
+final partyMyPartiesStreamProvider = StreamProvider<List<Party>>((ref) {
+  return ref.watch(partyProvider.notifier).myPartiesStream();
 });
 
-final partyUpcomingPartiesStreamProvider =
-    StreamProvider.autoDispose<List<Party>>((ref) {
-  final party = ref.watch(partyProvider.notifier);
-  ref.keepAlive();
-  return party.upcomingPartiesStream() ?? const Stream.empty();
+final partyUpcomingPartiesStreamProvider = StreamProvider<List<Party>>((ref) {
+  return ref.watch(partyProvider.notifier).upcomingPartiesStream();
 });
 
 final partyComingStreamProvider =
-    StreamProvider.autoDispose.family<List<Friend>, Party>((ref, party) {
-  final partyService = ref.watch(partyProvider.notifier);
-  ref.keepAlive();
-  return partyService.comingStream(party: party) ?? const Stream.empty();
+    StreamProvider.family<List<Friend>, Party>((ref, party) {
+  return ref.watch(partyProvider.notifier).comingStream(party: party);
 });

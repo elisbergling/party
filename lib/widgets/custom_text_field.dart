@@ -14,7 +14,7 @@ class CustomTextField extends HookWidget {
     this.isForm = false,
     this.isObscure = false,
     this.color = MyColors.dark,
-    this.margin = 20,
+    this.margin = 10,
     this.borderRadius = 10,
     this.keyboardType = TextInputType.text,
   });
@@ -36,10 +36,6 @@ class CustomTextField extends HookWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(margin),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
-        color: color,
-      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         child: isForm
@@ -52,6 +48,20 @@ class CustomTextField extends HookWidget {
                 decoration: InputDecoration(
                   hintText: text,
                   hintStyle: const TextStyle(color: MyColors.grey),
+                  filled: true,
+                  fillColor: color,
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(borderRadius),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(borderRadius),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(borderRadius),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(borderRadius),
+                  ),
                 ),
               )
             : TextField(
@@ -62,7 +72,7 @@ class CustomTextField extends HookWidget {
                 decoration: InputDecoration(
                   hintText: text,
                   hintStyle: const TextStyle(color: MyColors.grey),
-                  icon: Icon(icon, color: MyColors.blue),
+                  icon: icon != null ? Icon(icon, color: MyColors.blue) : null,
                 ),
               ),
       ),

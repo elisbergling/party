@@ -16,8 +16,6 @@ import 'package:party/widgets/temp/my_loading_widget.dart';
 class AddFriendScreen extends HookConsumerWidget {
   const AddFriendScreen({super.key});
 
-  static const routeName = '/add_friend';
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userUsersFuture = ref.watch(userUsersFutureProvider);
@@ -94,9 +92,7 @@ class AddFriendScreen extends HookConsumerWidget {
                         error: (e, s) => MyErrorWidget(e: e, s: s),
                       )
                     : userUsersFuture.when(
-                        data: (data) => data != null
-                            ? buildGridView(data)
-                            : throw Exception(),
+                        data: buildGridView,
                         loading: () => const MyLoadingWidget(),
                         error: (e, s) => MyErrorWidget(e: e, s: s),
                       ),

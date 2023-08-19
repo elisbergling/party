@@ -73,7 +73,11 @@ class ListItem extends HookConsumerWidget {
             ref.read(messageDataProvider.notifier).state = party;
             break;
         }
-        Navigator.pushNamed(context, FriendScreen.routeName);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const FriendScreen(),
+          ),
+        );
       },
       child: Container(
         margin: const EdgeInsets.symmetric(

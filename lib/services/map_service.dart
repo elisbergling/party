@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:party/constants/api_keys.dart';
 import 'package:party/models/location_info.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:party/models/map_service_data.dart';
@@ -25,15 +26,14 @@ class MapService extends Notifier<MapServiceData> {
     await getCurrentLocation();
   }
 
-  Future getCurrentLocation() async {
+  Future<void> getCurrentLocation() async {
     final position = await GeolocatorPlatform.instance.getCurrentPosition();
     state = state.copyWith(position: position);
   }
 
   Future<LocationInfo> getLocationInfo(LatLng pos) async {
-    const apiKey = 'å';
     final url =
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${pos.latitude},${pos.longitude}&key=$apiKey';
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${pos.latitude},${pos.longitude}&key=$googleAPIKey';
     final response = await http.get(Uri.parse(url));
     final data = jsonDecode(response.body);
 
@@ -49,12 +49,12 @@ class MapService extends Notifier<MapServiceData> {
   }
 
   Future<double> distanceBetween(LatLng start) async {
-    final end = await getCurrentLocation();
+    await getCurrentLocation();
     return GeolocatorPlatform.instance.distanceBetween(
       start.latitude,
       start.longitude,
-      end.latitude,
-      end.longitude,
+      state.position!.latitude,
+      state.position!.longitude,
     );
   }
 

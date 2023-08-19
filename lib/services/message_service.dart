@@ -1,14 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/enum.dart';
 import 'package:party/constants/strings.dart';
 import 'package:party/models/message.dart';
 import 'package:party/providers/state_provider.dart';
 import 'package:party/services/service_notifier.dart';
-import 'package:party/utils/auth_state_mixin.dart';
 import 'package:uuid/uuid.dart';
 
-class MessageService extends ServiceNotifier with AuthState {
+class MessageService extends ServiceNotifier {
+  final String? uid = FirebaseAuth.instance.currentUser?.uid;
+
   MessageType get messageType {
     return ProviderContainer().read(messageTypeProvider);
   }
@@ -21,11 +23,11 @@ class MessageService extends ServiceNotifier with AuthState {
     switch (messageType) {
       case MessageType.friends:
         if (uid.hashCode < uidTo.hashCode) {
-          chatRoomId = uid + uidTo;
+          chatRoomId = uid! + uidTo;
         } else if (uidTo.hashCode < uid.hashCode) {
-          chatRoomId = uidTo + uid;
+          chatRoomId = uidTo + uid!;
         } else if (uidTo == uid) {
-          chatRoomId = uid;
+          chatRoomId = uid!;
         } else if (uidTo.hashCode == uid.hashCode) {
           chatRoomId = uidTo.hashCode.toString() + uid.hashCode.toString();
         }

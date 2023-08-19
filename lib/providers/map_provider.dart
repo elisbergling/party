@@ -7,4 +7,5 @@ final mapProvider =
     NotifierProvider<MapService, MapServiceData>(() => MapService());
 
 final mapDistanceBetweenProvider = FutureProvider.family<double, LatLng>(
-    (ref, start) => ref.watch(mapProvider.notifier).distanceBetween(start));
+    (ref, start) async =>
+        await ref.watch(mapProvider.notifier).distanceBetween(start));

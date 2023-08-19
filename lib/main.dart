@@ -7,19 +7,13 @@ import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/providers/auth_provider.dart';
+import 'package:party/providers/provider.dart';
 import 'package:party/providers/state_provider.dart';
 import 'package:party/screens/auth/auth_screen.dart';
-import 'package:party/screens/home/add_friend_screen.dart';
-import 'package:party/screens/home/add_group_screen.dart';
-import 'package:party/screens/home/add_party_screen.dart';
-import 'package:party/screens/home/friend_screen.dart';
 import 'package:party/screens/home/map_screen.dart';
-import 'package:party/screens/home/message_screen.dart';
 import 'package:party/screens/home/messages_screen.dart';
-import 'package:party/screens/home/party_screen.dart';
 import 'package:party/screens/home/profile_screen.dart';
 import 'package:party/screens/home/settings_screen.dart';
-import 'package:party/screens/home/user_screen.dart';
 import 'package:party/screens/temp/error_screen.dart';
 import 'package:party/screens/temp/loading_screen.dart';
 
@@ -40,7 +34,9 @@ class MyApp extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authStateChanges = ref.watch(authStateChangesProvider);
+    final scaffoldKey = ref.watch(scaffoldMessengerKeyProvider);
     return MaterialApp(
+      scaffoldMessengerKey: scaffoldKey,
       debugShowCheckedModeBanner: false,
       title: 'Party',
       theme: ThemeData(
@@ -80,18 +76,6 @@ class MyApp extends HookConsumerWidget {
           helperStyle: TextStyle(color: Colors.black),
         ),
       ),
-      routes: {
-        UserScreen.routeName: (context) => const UserScreen(),
-        MapScreen.routeName: (context) => const MapScreen(),
-        MessageScreen.routeName: (context) => const MessageScreen(),
-        SettingsScreen.routeName: (context) => const SettingsScreen(),
-        FriendScreen.routeName: (context) => const FriendScreen(),
-        AddFriendScreen.routeName: (context) => const AddFriendScreen(),
-        AddGroupScreen.routeName: (context) => const AddGroupScreen(),
-        AddPartyScreen.routeName: (context) => const AddPartyScreen(),
-        PartyScreen.routeName: (context) => const PartyScreen(),
-        MyHomePage.routeName: (context) => const MyHomePage(),
-      },
       home: authStateChanges.when(
         data: (user) => user != null ? const MyHomePage() : const AuthScreen(),
         loading: () => const LoadingScreen(),
@@ -102,8 +86,6 @@ class MyApp extends HookConsumerWidget {
 }
 
 class MyHomePage extends HookConsumerWidget {
-  static const routeName = '/my-home-page';
-
   const MyHomePage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {

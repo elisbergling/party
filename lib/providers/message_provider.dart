@@ -7,9 +7,8 @@ final messageProvider =
     NotifierProvider<MessageService, ServiceData>(() => MessageService());
 
 final messageMessagesStreamProvider =
-    StreamProvider.autoDispose.family<List<Message>, String?>((ref, uidTo) {
+    StreamProvider.family<List<Message>, String?>((ref, uidTo) {
   final message = ref.watch(messageProvider.notifier);
-  ref.keepAlive();
   if (uidTo != null) {
     return message.messagesStream(uidTo: uidTo) ?? const Stream.empty();
   } else {
@@ -18,16 +17,14 @@ final messageMessagesStreamProvider =
 });
 
 final messageLastMessageStreamProvider =
-    StreamProvider.autoDispose.family<Message, String>((ref, uidTo) {
+    StreamProvider.family<Message, String>((ref, uidTo) {
   final message = ref.watch(messageProvider.notifier);
-  ref.keepAlive();
   return message.lastMessageStream(uidTo: uidTo) ?? const Stream.empty();
 });
 
 final messageLastMessageFutureProvider =
-    FutureProvider.autoDispose.family<Message?, String>((ref, uidTo) async {
+    FutureProvider.family<Message?, String>((ref, uidTo) async {
   final message = ref.watch(messageProvider.notifier);
-  ref.keepAlive();
   try {
     return await message.lastMessageFuture(uidTo: uidTo);
   } catch (e) {

@@ -135,9 +135,13 @@ class FriendTile extends HookConsumerWidget {
                               ),
                               iconSize: 24,
                               onPressed: () {
-                                ref.read(messageDataProvider).state = friend;
-                                Navigator.of(context)
-                                    .pushNamed(FriendScreen.routeName);
+                                ref.read(messageDataProvider.notifier).state =
+                                    friend;
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => const FriendScreen(),
+                                  ),
+                                );
                               },
                             ),
                             IconButton(

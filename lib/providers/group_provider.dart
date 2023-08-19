@@ -6,9 +6,7 @@ import 'package:party/services/group_service.dart';
 final groupProvider =
     NotifierProvider<GroupService, ServiceData>(() => GroupService());
 
-final groupGroupsStreamProvider =
-    StreamProvider.autoDispose<List<Group>>((ref) {
+final groupGroupsStreamProvider = StreamProvider<List<Group>>((ref) {
   final friend = ref.watch(groupProvider.notifier);
-  ref.maintainState = true;
-  return friend.groupsStream() ?? const Stream.empty();
+  return friend.groupsStream() ?? Stream.value([]);
 });

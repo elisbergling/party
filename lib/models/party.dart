@@ -18,8 +18,8 @@ class Party {
   double? latitude;
   double? longitude;
   String? address;
-  String country;
-  String postalCode;
+  String? country;
+  String? postalCode;
 
   Party({
     required this.id,

@@ -33,6 +33,7 @@ dependencies:
   json_serializable:
   uuid:
   timeago:
+  fluttertoast:
   flutter_hooks:
   hooks_riverpod: '2.3.6'
   firebase_core:

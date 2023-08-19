@@ -22,8 +22,6 @@ import 'package:party/widgets/temp/my_loading_widget.dart';
 class FriendScreen extends HookConsumerWidget {
   const FriendScreen({super.key});
 
-  static const routeName = '/friend_screen';
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final messageData = ref.watch(messageDataProvider);
@@ -51,7 +49,7 @@ class FriendScreen extends HookConsumerWidget {
             child: AppBar(
               leading: const CustomBackButton(),
               title: Text(
-                messageData.state.name,
+                messageData.name,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 30,
@@ -60,11 +58,12 @@ class FriendScreen extends HookConsumerWidget {
               ),
               actions: [
                 IconButton(
-                    icon: const Icon(
-                      CupertinoIcons.phone,
-                      color: MyColors.white,
-                    ),
-                    onPressed: () {}),
+                  icon: const Icon(
+                    CupertinoIcons.phone,
+                    color: MyColors.white,
+                  ),
+                  onPressed: () {},
+                ),
               ],
             ),
           ),

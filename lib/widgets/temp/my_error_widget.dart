@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:party/constants/colors.dart';
 
 class MyErrorWidget extends StatelessWidget {
   const MyErrorWidget({
@@ -14,7 +15,12 @@ class MyErrorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Center(
-        child: Text(e.toString() + s.toString()),
+        child: Text(
+          e.toString() + s.toString(),
+          style: const TextStyle(
+            color: MyColors.white,
+          ),
+        ),
       ),
     );
   }

@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:party/constants/strings.dart';
 import 'package:party/models/group.dart';
 import 'package:party/services/service_notifier.dart';
-import 'package:party/utils/auth_state_mixin.dart';
 import 'package:uuid/uuid.dart';
 
-class GroupService extends ServiceNotifier with AuthState {
+class GroupService extends ServiceNotifier {
+  final String? uid = FirebaseAuth.instance.currentUser?.uid;
+
   CollectionReference groupCollection =
       FirebaseFirestore.instance.collection(MyStrings.groups);
 
@@ -31,7 +33,7 @@ class GroupService extends ServiceNotifier with AuthState {
       toggleLoading();
       Uuid uuid = const Uuid();
       if (!membersUids.contains(uid)) {
-        membersUids.add(uid);
+        membersUids.add(uid!);
       }
       Group group = Group(
         id: uuid.v4(),

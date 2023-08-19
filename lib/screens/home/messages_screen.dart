@@ -39,7 +39,7 @@ class MessagesScreen extends HookConsumerWidget {
           actions: [
             IconButton(
               icon: const FaIcon(
-                FontAwesomeIcons.userAlt,
+                FontAwesomeIcons.userPlus,
                 color: MyColors.white,
               ),
               onPressed: () => showModalBottomSheet(

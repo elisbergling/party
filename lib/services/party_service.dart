@@ -1,20 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:party/constants/strings.dart';
 import 'package:party/models/friend.dart';
 import 'package:party/models/location_info.dart';
 import 'package:party/models/party.dart';
 import 'package:party/services/service_notifier.dart';
-import 'package:party/utils/auth_state_mixin.dart';
 import 'package:uuid/uuid.dart';
 
-class PartyService extends ServiceNotifier with AuthState {
+class PartyService extends ServiceNotifier {
+  final String? uid = FirebaseAuth.instance.currentUser?.uid;
+
   final CollectionReference partyCollection =
       FirebaseFirestore.instance.collection(MyStrings.parties);
 
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection(MyStrings.users);
 
-  Stream<List<Party>>? partiesStream() {
+  Stream<List<Party>> partiesStream() {
     try {
       return partyCollection
           .where(MyStrings.invitedUids, arrayContains: uid)
@@ -23,11 +25,11 @@ class PartyService extends ServiceNotifier with AuthState {
               event.docs.map((e) => Party.fromJson(e.data())).toList());
     } catch (e) {
       setError(e);
-      return null;
+      return Stream.value([]);
     }
   }
 
-  Stream<List<Party>>? myPartiesStream() {
+  Stream<List<Party>> myPartiesStream() {
     try {
       return partyCollection
           .where(MyStrings.hostUid, isEqualTo: uid)
@@ -36,11 +38,11 @@ class PartyService extends ServiceNotifier with AuthState {
               event.docs.map((e) => Party.fromJson(e.data())).toList());
     } catch (e) {
       setError(e);
-      return null;
+      return Stream.value([]);
     }
   }
 
-  Stream<List<Party>>? upcomingPartiesStream() {
+  Stream<List<Party>> upcomingPartiesStream() {
     try {
       return partyCollection
           .where(MyStrings.comingUids, arrayContains: uid)
@@ -49,18 +51,18 @@ class PartyService extends ServiceNotifier with AuthState {
               event.docs.map((e) => Party.fromJson(e.data())).toList());
     } catch (e) {
       setError(e);
-      return null;
+      return Stream.value([]);
     }
   }
 
-  Stream<List<Friend>>? comingStream({required Party party}) {
+  Stream<List<Friend>> comingStream({required Party party}) {
     try {
       List<String> list = party.comingUids.isNotEmpty ? party.comingUids : [''];
       return userCollection.where(MyStrings.uid, whereIn: list).snapshots().map(
           (event) => event.docs.map((e) => Friend.fromJson(e.data())).toList());
     } catch (e) {
       setError(e);
-      return null;
+      return Stream.value([]);
     }
   }
 
@@ -110,7 +112,7 @@ class PartyService extends ServiceNotifier with AuthState {
           price: price,
           comingUids: [],
           invitedUids: invitedUids ?? [],
-          hostUid: uid,
+          hostUid: uid!,
           hostName: Friend.fromJson(documentSnapshot.data()).name,
           address: locationInfo.address,
           country: locationInfo.country,

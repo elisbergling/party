@@ -89,8 +89,11 @@ class AddFriendTile extends HookConsumerWidget {
                         ? buildButton(context, CupertinoIcons.bubble_left, () {
                             ref.read(messageDataProvider.notifier).state =
                                 friend;
-                            Navigator.pushNamed(
-                                context, FriendScreen.routeName);
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const FriendScreen(),
+                              ),
+                            );
                           })
                         : buildButton(
                             context,

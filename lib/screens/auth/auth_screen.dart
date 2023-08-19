@@ -1,53 +1,22 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:party/constants/colors.dart';
 import 'package:party/providers/auth_provider.dart';
-import 'package:party/providers/user_provider.dart';
 import 'package:party/providers/state_provider.dart';
 import 'package:party/widgets/background_gradient.dart';
 import 'package:party/widgets/border_gradient.dart';
+import 'package:party/widgets/custom_big_button.dart';
 import 'package:party/widgets/custom_button.dart';
 import 'package:party/widgets/custom_text_field.dart';
-import 'package:party/widgets/temp/my_loading_widget.dart';
 
 class AuthScreen extends HookConsumerWidget {
   const AuthScreen({super.key});
-
-  void showErrorDialog({
-    required String message,
-    required BuildContext ctx,
-    required WidgetRef ref,
-    required bool isAuth,
-  }) {
-    showDialog(
-      context: ctx,
-      builder: (ctx) => AlertDialog(
-        title: const Text('An Error Occured'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              if (isAuth) {
-                ref.read(authProvider.notifier).setError('');
-              } else {
-                ref.read(userCreateUserProvider.notifier).setError('');
-              }
-              Navigator.of(ctx).pop();
-            },
-            child: const Text('Okay'),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isLogin = ref.watch(isLoginProvider);
     final auth = ref.watch(authProvider);
-    final userCreateUser = ref.watch(userCreateUserProvider);
     final formKey = GlobalKey<FormState>();
     final controllerName = useTextEditingController();
     final controllerUsername = useTextEditingController();
@@ -74,6 +43,7 @@ class AuthScreen extends HookConsumerWidget {
                         key: formKey,
                         child: Column(
                           children: [
+                            const SizedBox(height: 10),
                             if (!isLogin) ...[
                               CustomTextField(
                                 text: 'name',
@@ -146,71 +116,53 @@ class AuthScreen extends HookConsumerWidget {
                                 textEditingController:
                                     controllerConfirmPassword,
                               ),
-                            auth.isLoading
-                                ? const MyLoadingWidget()
-                                : CustomButton(
-                                    onTap: () async {
-                                      if (!formKey.currentState!.validate()) {
-                                        return;
-                                      }
-                                      formKey.currentState!.save();
-                                      if (isLogin) {
-                                        print('start');
-                                        await ref
-                                            .read(authProvider.notifier)
-                                            .loginWithEmail(
-                                              email: controllerEmail.text,
-                                              password: controllerPassword.text,
-                                            );
-                                        print('middle');
-                                        if (auth.error.isNotEmpty) {
-                                          showErrorDialog(
-                                            ctx: context,
-                                            message: auth.error,
-                                            isAuth: true,
-                                            ref: ref,
-                                          );
-                                        }
-                                        print('finnish');
-                                      } else {
-                                        User? user = await ref
-                                            .read(authProvider.notifier)
-                                            .signUpWithEmail(
-                                              email: controllerEmail.text,
-                                              password: controllerPassword.text,
-                                            );
-                                        if (user == null) {
-                                          showErrorDialog(
-                                            ctx: context,
-                                            message: auth.error,
-                                            isAuth: true,
-                                            ref: ref,
-                                          );
-                                        } else {
-                                          await ref
-                                              .read(userCreateUserProvider
-                                                  .notifier)
-                                              .createUser(
-                                                uid: user.uid,
-                                                email: user.email,
-                                                name: controllerName.text,
-                                                username:
-                                                    controllerUsername.text,
-                                                imgUrl: '',
-                                              );
-                                          if (userCreateUser.error.isNotEmpty) {
-                                            showErrorDialog(
-                                              ctx: context,
-                                              message: userCreateUser.error,
-                                              isAuth: false,
-                                              ref: ref,
-                                            );
-                                          }
-                                        }
-                                      }
-                                    },
-                                    text: !isLogin ? 'Sign Up' : 'Login',
+                            if (auth.error.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.all(15),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: MyColors.dark,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    auth.error,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                    ),
                                   ),
+                                ),
+                              ),
+                            const SizedBox(height: 10),
+                            CustomBigButton(
+                              isLoading: auth.isLoading,
+                              onTap: () async {
+                                if (formKey.currentState!.validate()) {
+                                  formKey.currentState!.save();
+                                  if (isLogin) {
+                                    await ref
+                                        .read(authProvider.notifier)
+                                        .loginWithEmail(
+                                          email: controllerEmail.text,
+                                          password: controllerPassword.text,
+                                        );
+                                  } else {
+                                    await ref
+                                        .read(authProvider.notifier)
+                                        .signUpWithEmail(
+                                          email: controllerEmail.text,
+                                          password: controllerPassword.text,
+                                          name: controllerName.text,
+                                          username: controllerUsername.text,
+                                        );
+                                  }
+                                }
+                              },
+                              text: !isLogin ? 'Sign Up' : 'Login',
+                            ),
                             const SizedBox(height: 20),
                           ],
                         ),

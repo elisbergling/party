@@ -21,8 +21,6 @@ import 'package:party/widgets/temp/my_loading_widget.dart';
 class PartyScreen extends HookConsumerWidget {
   const PartyScreen({super.key});
 
-  static const routeName = '/party';
-
   CustomButton buildCustomButton(
     BuildContext context,
     Party partyData,

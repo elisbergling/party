@@ -20,8 +20,11 @@ class CustomBackButton extends StatelessWidget {
       ),
       iconSize: 30,
       onPressed: shouldNotJustPop
-          ? () =>
-              Navigator.of(context).pushReplacementNamed(MyHomePage.routeName)
+          ? () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const MyHomePage(),
+                ),
+              )
           : Navigator.of(context).pop,
     );
   }

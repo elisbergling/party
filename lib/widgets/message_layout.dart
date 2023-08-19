@@ -44,18 +44,14 @@ class MessageLayout extends StatelessWidget {
                   ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(
-                topRight: isMe
-                    ? const Radius.circular(10.0)
-                    : const Radius.circular(10.0),
-                topLeft: isMe
-                    ? const Radius.circular(10.0)
-                    : const Radius.circular(10.0),
+                topRight: const Radius.circular(15.0),
+                topLeft: const Radius.circular(15.0),
                 bottomRight: isMe
-                    ? const Radius.circular(0.0)
-                    : const Radius.circular(10.0),
+                    ? const Radius.circular(5.0)
+                    : const Radius.circular(15.0),
                 bottomLeft: isMe
-                    ? const Radius.circular(10.0)
-                    : const Radius.circular(0.0),
+                    ? const Radius.circular(15.0)
+                    : const Radius.circular(5.0),
               ),
               gradient: LinearGradient(
                 colors: isMe

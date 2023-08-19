@@ -5,8 +5,6 @@ import 'package:party/screens/home/messages_screen.dart';
 class MessageScreen extends StatelessWidget {
   const MessageScreen({super.key});
 
-  static const routeName = '/message';
-
   @override
   Widget build(BuildContext context) {
     return const Row(

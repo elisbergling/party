@@ -20,8 +20,6 @@ import 'package:party/widgets/temp/my_loading_widget.dart';
 class AddPartyScreen extends HookConsumerWidget {
   const AddPartyScreen({super.key});
 
-  static const routeName = '/add_party';
-
   String? validator(value) {
     if (value.isEmpty) {
       return 'Well, you have to enter a name';
